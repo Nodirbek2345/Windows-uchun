@@ -150,64 +150,69 @@ impl eframe::App for AIFilterApp {
             return;
         }
         
-        // === SIDEBAR ===
+        // === ICON-ONLY SIDEBAR ===
         egui::SidePanel::left("sidebar")
-            .exact_width(220.0)
+            .exact_width(60.0)
             .frame(
                 egui::Frame::none()
                     .fill(BG_SIDEBAR)
-                    .inner_margin(egui::Margin::symmetric(20.0, 30.0))
+                    .inner_margin(egui::Margin::symmetric(8.0, 15.0))
             )
             .show(ctx, |ui| {
-                ui.add_space(10.0);
-                ui.label(egui::RichText::new("🛡 AI filter").size(24.0).color(NEON).strong());
-                ui.add_space(40.0);
-                
-                let tabs = [
-                    ("Bosh sahifa", "🏠"),
-                    ("Statistika", "📊"),
-                    ("Filterlar", "🔒"),
-                    ("Sozlamalar", "⚙"),
-                    ("Logs", "📋"),
-                    ("Yordam", "❓"),
-                    ("Haqida", "ℹ"),
-                ];
-                
-                for (name, icon) in tabs {
-                    let is_selected = self.selected_tab == name;
+                ui.vertical_centered(|ui| {
+                    ui.add_space(8.0);
+                    // App logo
+                    ui.label(egui::RichText::new("🛡").size(28.0));
+                    ui.add_space(25.0);
                     
-                    let bg = if is_selected {
-                        egui::Color32::from_rgba_unmultiplied(80, 60, 200, 150)
-                    } else {
-                        egui::Color32::TRANSPARENT
-                    };
-                    let tc = if is_selected {
-                        egui::Color32::from_rgb(200, 200, 255)
-                    } else {
-                        DIM
-                    };
+                    let tabs = [
+                        ("Bosh sahifa", "🏠", NEON),
+                        ("AI Xizmatlari", "🤖", GREEN),
+                        ("Statistika", "📊", BLUE),
+                        ("Filterlar", "🔒", PURPLE),
+                        ("Sozlamalar", "⚙", DIM),
+                        ("Logs", "📋", DIM),
+                        ("Yordam", "❓", DIM),
+                        ("Haqida", "ℹ", DIM),
+                    ];
                     
-                    let frame = egui::Frame::none().fill(bg).rounding(8.0).inner_margin(egui::Margin::symmetric(15.0, 12.0));
-                    let resp = frame.show(ui, |ui| {
-                        ui.set_width(ui.available_width());
-                        ui.label(egui::RichText::new(format!("{}   {}", icon, name)).size(16.0).color(tc));
-                    }).response;
-                    
-                    let interact = ui.interact(resp.rect, ui.id().with(name), egui::Sense::click());
-                    if interact.clicked() {
-                        self.selected_tab = name.to_string();
+                    for (name, icon, accent) in tabs {
+                        let is_selected = self.selected_tab == name;
+                        
+                        let bg = if is_selected {
+                            egui::Color32::from_rgba_unmultiplied(80, 60, 200, 180)
+                        } else {
+                            egui::Color32::TRANSPARENT
+                        };
+                        let tc = if is_selected { accent } else { DIM };
+                        
+                        let frame = egui::Frame::none().fill(bg).rounding(10.0).inner_margin(egui::Margin::symmetric(10.0, 10.0));
+                        let resp = frame.show(ui, |ui| {
+                            ui.label(egui::RichText::new(icon).size(22.0).color(tc));
+                        }).response;
+                        
+                        let interact = ui.interact(resp.rect, ui.id().with(name), egui::Sense::click());
+                        if interact.clicked() {
+                            self.selected_tab = name.to_string();
+                        }
+                        if interact.hovered() {
+                            ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
+                            if !is_selected {
+                                resp.on_hover_text(name);
+                            }
+                        }
+                        ui.add_space(3.0);
                     }
-                    if interact.hovered() && !is_selected {
-                        ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
-                    }
-                    ui.add_space(5.0);
-                }
+                });
                 
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    ui.add_space(20.0);
-                    card_frame(egui::Color32::from_rgb(30, 40, 70)).show(ui, |ui| {
-                        ui.label(egui::RichText::new("🛡 v1.0.0\nPrivacy Proxy").size(14.0));
-                    });
+                    ui.add_space(10.0);
+                    // Green dot for status
+                    let active = self.state.is_active();
+                    let dot = if active { GREEN } else { RED };
+                    let (dot_rect, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
+                    ui.painter().circle_filled(dot_rect.center(), 5.0, dot);
+                    ui.label(egui::RichText::new("v1.0.0").size(11.0).color(DIM));
                 });
             });
 
@@ -217,6 +222,7 @@ impl eframe::App for AIFilterApp {
             .show(ctx, |ui| {
                 match self.selected_tab.as_str() {
                     "Bosh sahifa" => self.page_dashboard(ui),
+                    "AI Xizmatlari" => self.page_ai_services(ui),
                     "Statistika" => self.page_statistika(ui),
                     "Filterlar" => self.page_filterlar(ui),
                     "Sozlamalar" => self.page_sozlamalar(ui),
@@ -233,6 +239,100 @@ impl eframe::App for AIFilterApp {
 
 // === PAGE IMPLEMENTATIONS ===
 impl AIFilterApp {
+
+    // ==================== AI XIZMATLARI ====================
+    fn page_ai_services(&self, ui: &mut egui::Ui) {
+        ui.label(egui::RichText::new("🤖 AI Xizmatlari Monitoringi").size(32.0).strong().color(NEON));
+        ui.label(egui::RichText::new("Qaysi AI platformalarga filtr qo'llanilmoqda").size(16.0).color(DIM));
+        ui.add_space(25.0);
+
+        // Status bar
+        let active = self.state.is_active();
+        card_frame(if active { GREEN } else { RED }).show(ui, |ui| {
+            ui.set_width(ui.available_width());
+            ui.horizontal(|ui| {
+                let dot_color = if active { GREEN } else { RED };
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(14.0, 14.0), egui::Sense::hover());
+                ui.painter().circle_filled(r.center(), 7.0, dot_color);
+                ui.add_space(8.0);
+                ui.label(egui::RichText::new(if active { "Filter FAOL — AI trafligi tekshirilmoqda" } else { "Filter O'CHIRILGAN" }).size(16.0).strong().color(NEON));
+            });
+        });
+
+        ui.add_space(20.0);
+
+        // AI Services list
+        let services = [
+            ("ChatGPT", "chat.openai.com", "🟢", "OpenAI", CYAN),
+            ("Claude", "claude.ai", "🟣", "Anthropic", PURPLE),
+            ("Gemini", "gemini.google.com", "🔵", "Google", BLUE),
+            ("Copilot", "copilot.microsoft.com", "🟠", "Microsoft", ORANGE),
+            ("Grok", "grok.x.ai", "⚪", "xAI", DIM),
+            ("Perplexity", "perplexity.ai", "🟡", "Perplexity AI", GREEN),
+        ];
+
+        let target_sites = self.state.config.read().target_sites.clone();
+
+        ui.columns(2, |cols| {
+            for (i, (name, domain, emoji, company, color)) in services.iter().enumerate() {
+                let col = &mut cols[i % 2];
+                let is_monitored = target_sites.iter().any(|s| domain.contains(s) || s.contains(domain));
+                
+                let border = if is_monitored { *color } else { egui::Color32::from_rgb(30, 35, 50) };
+                card_frame(border).show(col, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.set_min_height(70.0);
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(*emoji).size(32.0));
+                        ui.add_space(10.0);
+                        ui.vertical(|ui| {
+                            ui.label(egui::RichText::new(*name).size(18.0).strong().color(NEON));
+                            ui.label(egui::RichText::new(*company).size(13.0).color(DIM));
+                            ui.label(egui::RichText::new(*domain).size(12.0).color(*color).monospace());
+                        });
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if is_monitored {
+                                egui::Frame::none()
+                                    .fill(egui::Color32::from_rgb(20, 50, 30))
+                                    .rounding(12.0)
+                                    .inner_margin(egui::Margin::symmetric(10.0, 5.0))
+                                    .stroke(egui::Stroke::new(1.0, GREEN))
+                                    .show(ui, |ui| {
+                                        ui.label(egui::RichText::new("● FAOL").size(13.0).color(GREEN));
+                                    });
+                            } else {
+                                egui::Frame::none()
+                                    .fill(egui::Color32::from_rgb(30, 30, 35))
+                                    .rounding(12.0)
+                                    .inner_margin(egui::Margin::symmetric(10.0, 5.0))
+                                    .show(ui, |ui| {
+                                        ui.label(egui::RichText::new("○ Nofaol").size(13.0).color(DIM));
+                                    });
+                            }
+                        });
+                    });
+                });
+                col.add_space(10.0);
+            }
+        });
+
+        ui.add_space(20.0);
+
+        // Bottom info card
+        card_frame(egui::Color32::from_rgb(30, 40, 70)).show(ui, |ui| {
+            ui.set_width(ui.available_width());
+            ui.horizontal(|ui| {
+                ui.label(egui::RichText::new("💡").size(24.0));
+                ui.add_space(10.0);
+                ui.vertical(|ui| {
+                    ui.label(egui::RichText::new("Qanday ishlaydi?").size(16.0).strong().color(NEON));
+                    ui.label(egui::RichText::new(
+                        "Siz yuqoridagi AI xizmatlaridan birortasiga kirsangiz, dastur avtomatik ravishda barcha trafikni tekshiradi va shaxsiy ma'lumotlarni (telefon, email, passport, PINFL va h.k.) maskalaydi. Boshqa saytlarga ta'sir qilmaydi."
+                    ).size(14.0).color(egui::Color32::from_rgb(180, 190, 220)));
+                });
+            });
+        });
+    }
 
     // ==================== BOSH SAHIFA ====================
     fn page_dashboard(&self, ui: &mut egui::Ui) {
