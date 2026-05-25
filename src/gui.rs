@@ -97,8 +97,8 @@ impl PrivacyProxyApp {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
                 ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
             } else if event.id == self.tray_quit_id {
-                self.should_quit = true;
-                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                self.state.sync_system_proxy(false);
+                std::process::exit(0);
             }
         }
     }
@@ -623,13 +623,11 @@ impl PrivacyProxyApp {
             ("PrivacyProxy nima?",
              "Bu dastur sizning brauzeringiz va AI xizmatlari (ChatGPT, Claude, Gemini) o'rtasida proksi vazifasini bajaradi. U shaxsiy ma'lumotlarni avtomatik aniqlaydi va maskalaydi."),
             ("Qanday ishlaydi?",
-             "1. Brauzeringizni proksi sozlamalarida 127.0.0.1:8080 ko'rsating\n2. Dasturni ishga tushiring\n3. AI xizmatlaridan odatdagidek foydalaning\n4. Dastur fon rejimida shaxsiy ma'lumotlarni avtomatik filtrlaydi"),
+             "1. Dasturni ishga tushiring (u avtomat tarzda tizim proxy sini sozlaydi)\n2. AI xizmatlaridan odatdagidek foydalaning\n3. Dastur fon rejimida shaxsiy ma'lumotlarni avtomatik filtrlaydi"),
             ("Qaysi ma'lumotlar filtrlanadi?",
              "Telefon raqamlari, email manzillari, bank karta raqamlari, passport seriyalari, PINFL, INN, tug'ilgan sanalar va qora ro'yxatdagi so'zlar."),
             ("Ma'lumotlarim saqlanadiimi?",
              "Yo'q! Barcha qayta ishlash faqat kompyuteringizda (RAM da) amalga oshiriladi. Hech qanday ma'lumot tashqariga yuborilmaydi."),
-            ("Proxy ni qanday sozlash kerak?",
-             "Windows: Sozlamalar → Tarmoq va Internet → Proxy → Qo'lda sozlash → Manzil: 127.0.0.1, Port: 8080"),
         ];
 
         for (question, answer) in faqs {

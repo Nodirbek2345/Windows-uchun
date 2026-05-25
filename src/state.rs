@@ -25,6 +25,23 @@ pub struct AppState {
     pub logs: RwLock<Vec<LogEntry>>,
 }
 
+use winreg::enums::*;
+use winreg::RegKey;
+use std::ptr;
+
+#[link(name = "wininet")]
+extern "system" {
+    fn InternetSetOptionW(
+        hInternet: *mut std::ffi::c_void,
+        dwOption: u32,
+        lpBuffer: *mut std::ffi::c_void,
+        dwBufferLength: u32,
+    ) -> i32;
+}
+
+const INTERNET_OPTION_SETTINGS_CHANGED: u32 = 39;
+const INTERNET_OPTION_REFRESH: u32 = 37;
+
 impl AppState {
     pub fn new(config: Config) -> Self {
         let state = Self {
@@ -53,20 +70,25 @@ impl AppState {
     pub fn sync_system_proxy(&self, enable: bool) {
         let conf = self.config.read();
         let port = conf.proxy.port;
-        let host = conf.proxy.host.clone();
         
-        let sysproxy = sysproxy::Sysproxy {
-            enable,
-            host,
-            port,
-            bypass: "localhost;127.*;10.*;172.16.*;192.168.*".into(),
-        };
-        
-        if let Err(e) = sysproxy.set_system_proxy() {
-            eprintln!("System proxy sozlashda xatolik: {}", e);
-        } else {
-            println!("System proxy holati o'zgardi (Yoqilgan: {})", enable);
+        let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+        if let Ok(key) = hkcu.open_subkey_with_flags("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", KEY_SET_VALUE) {
+            if enable {
+                let pac_url = format!("http://127.0.0.1:{}/pac", port);
+                let _ = key.set_value("AutoConfigURL", &pac_url);
+                let _ = key.set_value("ProxyEnable", &0u32);
+            } else {
+                let _ = key.delete_value("AutoConfigURL");
+                let _ = key.set_value("ProxyEnable", &0u32);
+            }
+            
+            unsafe {
+                InternetSetOptionW(ptr::null_mut(), INTERNET_OPTION_SETTINGS_CHANGED, ptr::null_mut(), 0);
+                InternetSetOptionW(ptr::null_mut(), INTERNET_OPTION_REFRESH, ptr::null_mut(), 0);
+            }
         }
+        
+        println!("System proxy (PAC) holati o'zgardi (Yoqilgan: {})", enable);
     }
     
     pub fn add_log(&self, category: &str, original: &str, masked: &str) {

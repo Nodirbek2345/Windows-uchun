@@ -151,44 +151,60 @@ async fn handle_connection(
         let response = "HTTP/1.1 200 Connection Established\r\n\r\n";
         client_stream.write_all(response.as_bytes()).await?;
         
-        // 1. Establish TLS server with local client
-        if let Ok(server_config) = mitm.get_server_config(&domain).await {
-            let acceptor = tokio_rustls::TlsAcceptor::from(server_config);
-            
-            if let Ok(mut secure_client) = acceptor.accept(client_stream).await {
-                // 2. Connect to actual upstream
-                if let Ok(upstream) = TcpStream::connect(target).await {
-                    let server_name = match rustls::pki_types::ServerName::try_from(domain.clone()) {
-                        Ok(sn) => sn.to_owned(),
-                        Err(_) => return Ok(()),
-                    };
-                    
-                    let connector = tokio_rustls::TlsConnector::from(client_config);
-                    if let Ok(mut secure_upstream) = connector.connect(server_name, upstream).await {
-                        
-                        // We must read the first payload from secure_client manually to intercept it!
-                        let mut secure_buf = vec![0u8; 32768];
-                        let mut secure_c_read = tokio::time::timeout(tokio::time::Duration::from_millis(500), secure_client.read(&mut secure_buf)).await;
-                        
-                        if let Ok(Ok(sn)) = secure_c_read {
-                            if sn > 0 {
-                                // MASK AND FILTER THE HTTPS PAYLOAD!
-                                let processed_request = process_http_payload(&secure_buf[..sn], &state, &detector, &mapping);
-                                // Send patched request to upstream
-                                secure_upstream.write_all(&processed_request).await?;
-                            }
-                        }
+        let target_sites = _target_sites;
+        let should_mitm = target_sites.is_empty() || target_sites.iter().any(|s| domain.contains(s));
 
-                        // Now tunnel the rest blindly (or we could loop process_http_payload for full session, but simple tunneling is safer for chunking for now)
-                        let (mut c_read, mut c_write) = tokio::io::split(secure_client);
-                        let (mut s_read, mut s_write) = tokio::io::split(secure_upstream);
+        if should_mitm {
+            // 1. Establish TLS server with local client
+            if let Ok(server_config) = mitm.get_server_config(&domain).await {
+                let acceptor = tokio_rustls::TlsAcceptor::from(server_config);
+                
+                if let Ok(mut secure_client) = acceptor.accept(client_stream).await {
+                    // 2. Connect to actual upstream
+                    if let Ok(upstream) = TcpStream::connect(target).await {
+                        let server_name = match rustls::pki_types::ServerName::try_from(domain.clone()) {
+                            Ok(sn) => sn.to_owned(),
+                            Err(_) => return Ok(()),
+                        };
                         
-                        let c2s = tokio::spawn(async move { let _ = tokio::io::copy(&mut c_read, &mut s_write).await; });
-                        let s2c = tokio::spawn(async move { let _ = tokio::io::copy(&mut s_read, &mut c_write).await; });
-                        
-                        let _ = tokio::try_join!(c2s, s2c);
+                        let connector = tokio_rustls::TlsConnector::from(client_config);
+                        if let Ok(mut secure_upstream) = connector.connect(server_name, upstream).await {
+                            
+                            // We must read the first payload from secure_client manually to intercept it!
+                            let mut secure_buf = vec![0u8; 32768];
+                            let mut secure_c_read = tokio::time::timeout(tokio::time::Duration::from_millis(500), secure_client.read(&mut secure_buf)).await;
+                            
+                            if let Ok(Ok(sn)) = secure_c_read {
+                                if sn > 0 {
+                                    // MASK AND FILTER THE HTTPS PAYLOAD!
+                                    let processed_request = process_http_payload(&secure_buf[..sn], &state, &detector, &mapping);
+                                    // Send patched request to upstream
+                                    secure_upstream.write_all(&processed_request).await?;
+                                }
+                            }
+
+                            // Now tunnel the rest blindly
+                            let (mut c_read, mut c_write) = tokio::io::split(secure_client);
+                            let (mut s_read, mut s_write) = tokio::io::split(secure_upstream);
+                            
+                            let c2s = tokio::spawn(async move { let _ = tokio::io::copy(&mut c_read, &mut s_write).await; });
+                            let s2c = tokio::spawn(async move { let _ = tokio::io::copy(&mut s_read, &mut c_write).await; });
+                            
+                            let _ = tokio::try_join!(c2s, s2c);
+                        }
                     }
                 }
+            }
+        } else {
+            // Blind TCP tunnel for non-target HTTPS sites (prevents SSL errors for all other apps)
+            if let Ok(mut upstream) = TcpStream::connect(target).await {
+                let (mut c_read, mut c_write) = tokio::io::split(client_stream);
+                let (mut s_read, mut s_write) = tokio::io::split(upstream);
+                
+                let c2s = tokio::spawn(async move { let _ = tokio::io::copy(&mut c_read, &mut s_write).await; });
+                let s2c = tokio::spawn(async move { let _ = tokio::io::copy(&mut s_read, &mut c_write).await; });
+                
+                let _ = tokio::try_join!(c2s, s2c);
             }
         }
         return Ok(());
@@ -197,6 +213,35 @@ async fn handle_connection(
     // ==== Handle DIRECT HTTP Mode ====
     if parts.len() >= 3 {
         let url = parts[1];
+        
+        // Serve PAC Script dynamically
+        if url == "/pac" || url.ends_with("/pac") {
+            let target_sites = _target_sites.clone();
+            let mut pac_conditions = String::new();
+            for site in target_sites {
+                pac_conditions.push_str(&format!("shExpMatch(host, '*{}*') || ", site));
+            }
+            if pac_conditions.ends_with(" || ") {
+                pac_conditions.truncate(pac_conditions.len() - 4);
+            }
+            if pac_conditions.is_empty() {
+                pac_conditions = "false".to_string();
+            }
+
+            let port = state.config.read().proxy.port;
+            let pac_content = format!(
+                "function FindProxyForURL(url, host) {{\n    if ({}) {{\n        return 'PROXY 127.0.0.1:{}';\n    }}\n    return 'DIRECT';\n}}",
+                pac_conditions, port
+            );
+            
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nConnection: close\r\n\r\n{}",
+                pac_content
+            );
+            client_stream.write_all(response.as_bytes()).await?;
+            return Ok(());
+        }
+
         let host = extract_host(&request_str, url);
         
         if let Some(host) = host {
