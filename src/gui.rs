@@ -53,6 +53,35 @@ impl PrivacyProxyApp {
             cc.egui_ctx.send_viewport_cmd(egui::ViewportCommand::Visible(false));
         }
 
+        let ctx_clone = cc.egui_ctx.clone();
+        let show_id = tray_show_id.clone();
+        let quit_id = tray_quit_id.clone();
+        let state_clone = state.clone();
+
+        std::thread::spawn(move || {
+            let menu_channel = tray_icon::menu::MenuEvent::receiver();
+            let tray_channel = tray_icon::TrayIconEvent::receiver();
+            loop {
+                if let Ok(event) = menu_channel.try_recv() {
+                    if event.id == show_id {
+                        ctx_clone.send_viewport_cmd(egui::ViewportCommand::Visible(true));
+                        ctx_clone.send_viewport_cmd(egui::ViewportCommand::Focus);
+                    } else if event.id == quit_id {
+                        state_clone.sync_system_proxy(false);
+                        std::process::exit(0);
+                    }
+                }
+                
+                if let Ok(event) = tray_channel.try_recv() {
+                    if let tray_icon::TrayIconEvent::DoubleClick { .. } = event {
+                        ctx_clone.send_viewport_cmd(egui::ViewportCommand::Visible(true));
+                        ctx_clone.send_viewport_cmd(egui::ViewportCommand::Focus);
+                    }
+                }
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+        });
+
         Self {
             state,
             selected_tab: "Bosh sahifa".to_string(),
@@ -73,33 +102,6 @@ impl PrivacyProxyApp {
             tray_quit_id,
             window_visible,
             should_quit: false,
-        }
-    }
-
-    /// Handle tray icon click and menu events
-    fn handle_tray_events(&mut self, ctx: &egui::Context) {
-        // Handle tray icon double-click (show window)
-        if let Ok(event) = TrayIconEvent::receiver().try_recv() {
-            match event {
-                TrayIconEvent::DoubleClick { .. } => {
-                    self.window_visible = true;
-                    ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
-                    ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
-                }
-                _ => {}
-            }
-        }
-
-        // Handle menu events
-        if let Ok(event) = MenuEvent::receiver().try_recv() {
-            if event.id == self.tray_show_id {
-                self.window_visible = true;
-                ctx.send_viewport_cmd(egui::ViewportCommand::Visible(true));
-                ctx.send_viewport_cmd(egui::ViewportCommand::Focus);
-            } else if event.id == self.tray_quit_id {
-                self.state.sync_system_proxy(false);
-                std::process::exit(0);
-            }
         }
     }
 }
@@ -128,8 +130,7 @@ fn card_frame(border: egui::Color32) -> egui::Frame {
 impl eframe::App for PrivacyProxyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         
-        // Handle tray events every frame
-        self.handle_tray_events(ctx);
+        // Tray events are now handled in the background thread.
 
         // Intercept standard window Close ('X' button)
         if ctx.input(|i| i.viewport().close_requested()) {
