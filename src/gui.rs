@@ -541,18 +541,18 @@ impl PrivacyProxyApp {
         
         card_frame(BLUE).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            ui.label(egui::RichText::new("Brauzer sozlamalari").size(18.0).strong().color(NEON));
+            ui.label(egui::RichText::new("Avtomatik tizim sozlamalari").size(18.0).strong().color(NEON));
             ui.add_space(10.0);
-            ui.label(egui::RichText::new("Brauzerni proksi orqali ishlashi uchun quyidagi sozlamani kiriting:").size(14.0).color(DIM));
+            ui.label(egui::RichText::new("Dastur Windows proksi parametrlarini PAC skripti yordamida avtomatik boshqaradi.").size(14.0).color(DIM));
             ui.add_space(8.0);
             
             card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
-                ui.label(egui::RichText::new(format!("HTTP Proxy:  127.0.0.1:{}", self.proxy_port)).size(15.0).color(GREEN).monospace());
-                ui.label(egui::RichText::new(format!("HTTPS Proxy: 127.0.0.1:{}", self.proxy_port)).size(15.0).color(GREEN).monospace());
+                ui.label(egui::RichText::new(format!("PAC Manzil: http://127.0.0.1:{}/pac", self.proxy_port)).size(15.0).color(GREEN).monospace());
+                ui.label(egui::RichText::new("Holati: Avtomatik sozlangan").size(15.0).color(GREEN));
             });
 
             ui.add_space(8.0);
-            ui.label(egui::RichText::new("Windows: Sozlamalar → Tarmoq → Proxy → Qo'lda sozlash").size(13.0).color(DIM));
+            ui.label(egui::RichText::new("Windows sozlamalarining 'Proxy' bo'limida natijani ko'rishingiz mumkin.").size(13.0).color(DIM));
         });
     }
 
