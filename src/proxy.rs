@@ -48,7 +48,7 @@ impl ProxyServer {
     pub async fn run(self) -> anyhow::Result<()> {
         let addr = format!("127.0.0.1:{}", self.port);
         let listener = TcpListener::bind(&addr).await?;
-        println!("🔒 PrivacyProxy is listening on {} (WITH HTTPS MITM)", addr);
+        println!("🔒 AI filter is listening on {} (WITH HTTPS MITM)", addr);
 
         loop {
             let (client_stream, client_addr) = listener.accept().await?;
@@ -261,7 +261,7 @@ async fn handle_connection(
                 },
                 Err(_) => {
                     let error_response = format!(
-                        "HTTP/1.1 502 Bad Gateway\r\nContent-Type: text/html\r\n\r\n<h1>PrivacyProxy</h1><p>Serverga ulanib bo'lmadi: {}</p>",
+                        "HTTP/1.1 502 Bad Gateway\r\nContent-Type: text/html\r\n\r\n<h1>AI filter</h1><p>Serverga ulanib bo'lmadi: {}</p>",
                         connect_addr
                     );
                     client_stream.write_all(error_response.as_bytes()).await?;
@@ -270,7 +270,7 @@ async fn handle_connection(
         } else {
             let info_response = format!(
                 "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n\
-                <html><body><h1>🛡️ PrivacyProxy v1.0.0</h1><p>Proksi faol ishlamoqda!</p></body></html>"
+                <html><body><h1>🛡️ AI filter v1.0.0</h1><p>Proksi faol ishlamoqda!</p></body></html>"
             );
             client_stream.write_all(info_response.as_bytes()).await?;
         }

@@ -6,7 +6,7 @@ use crate::detector::DetectionType;
 use egui_plot::{Line, Plot, PlotPoints};
 use tray_icon::{TrayIconEvent, menu::MenuEvent};
 
-pub struct PrivacyProxyApp {
+pub struct AIFilterApp {
     state: Arc<AppState>,
     selected_tab: String,
     // Filterlar sahifasi uchun
@@ -32,7 +32,7 @@ pub struct PrivacyProxyApp {
     should_quit: bool,
 }
 
-impl PrivacyProxyApp {
+impl AIFilterApp {
     pub fn new(
         cc: &eframe::CreationContext<'_>,
         state: Arc<AppState>,
@@ -127,7 +127,7 @@ fn card_frame(border: egui::Color32) -> egui::Frame {
         .stroke(egui::Stroke::new(1.0, border))
 }
 
-impl eframe::App for PrivacyProxyApp {
+impl eframe::App for AIFilterApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         
         // Tray events are now handled in the background thread.
@@ -160,7 +160,7 @@ impl eframe::App for PrivacyProxyApp {
             )
             .show(ctx, |ui| {
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("🛡 PrivacyProxy").size(24.0).color(NEON).strong());
+                ui.label(egui::RichText::new("🛡 AI filter").size(24.0).color(NEON).strong());
                 ui.add_space(40.0);
                 
                 let tabs = [
@@ -232,14 +232,14 @@ impl eframe::App for PrivacyProxyApp {
 }
 
 // === PAGE IMPLEMENTATIONS ===
-impl PrivacyProxyApp {
+impl AIFilterApp {
 
     // ==================== BOSH SAHIFA ====================
     fn page_dashboard(&self, ui: &mut egui::Ui) {
         // Header
         ui.horizontal(|ui| {
             ui.vertical(|ui| {
-                ui.label(egui::RichText::new("🛡 PrivacyProxy Dashboard").size(32.0).strong().color(NEON));
+                ui.label(egui::RichText::new("🛡 AI filter Dashboard").size(32.0).strong().color(NEON));
                 ui.label(egui::RichText::new("Sizning maxfiyligingiz — bizning ustuvor vazifamiz").size(16.0).color(DIM));
             });
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -621,7 +621,7 @@ impl PrivacyProxyApp {
         ui.add_space(25.0);
 
         let faqs = [
-            ("PrivacyProxy nima?",
+            ("AI filter nima?",
              "Bu dastur sizning brauzeringiz va AI xizmatlari (ChatGPT, Claude, Gemini) o'rtasida proksi vazifasini bajaradi. U shaxsiy ma'lumotlarni avtomatik aniqlaydi va maskalaydi."),
             ("Qanday ishlaydi?",
              "1. Dasturni ishga tushiring (u avtomat tarzda tizim proxy sini sozlaydi)\n2. AI xizmatlaridan odatdagidek foydalaning\n3. Dastur fon rejimida shaxsiy ma'lumotlarni avtomatik filtrlaydi"),
@@ -644,7 +644,7 @@ impl PrivacyProxyApp {
 
     // ==================== HAQIDA ====================
     fn page_haqida(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("ℹ PrivacyProxy Haqida").size(32.0).strong().color(NEON));
+        ui.label(egui::RichText::new("ℹ AI filter Haqida").size(32.0).strong().color(NEON));
         ui.add_space(25.0);
 
         card_frame(PURPLE).show(ui, |ui| {
@@ -653,7 +653,7 @@ impl PrivacyProxyApp {
                 ui.add_space(15.0);
                 ui.label(egui::RichText::new("🛡").size(64.0));
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("PrivacyProxy").size(28.0).strong().color(NEON));
+                ui.label(egui::RichText::new("AI filter").size(28.0).strong().color(NEON));
                 ui.label(egui::RichText::new("v1.0.0").size(16.0).color(DIM));
                 ui.add_space(20.0);
                 ui.label(egui::RichText::new("Shaxsiy ma'lumotlarni AI xizmatlaridan himoya qilish uchun\nlokal proksi dasturi").size(16.0).color(egui::Color32::from_rgb(180, 190, 220)));

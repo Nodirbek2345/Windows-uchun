@@ -1,11 +1,11 @@
 [package]
-name = "privacy-proxy"
+name = "ai-filter"
 version = "1.0.0"
 edition = "2021"
-description = "PrivacyProxy — AI xizmatlarga yuboriladigan shaxsiy ma'lumotlarni filterlash"
+description = "AI filter — AI xizmatlarga yuboriladigan shaxsiy ma'lumotlarni filterlash"
 
 [[bin]]
-name = "privacy-proxy"
+name = "ai-filter"
 path = "src/main.rs"
 
 [dependencies]

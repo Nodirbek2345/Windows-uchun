@@ -146,6 +146,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "ai-filter"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "eframe",
+ "egui_plot",
+ "httparse",
+ "once_cell",
+ "parking_lot",
+ "rcgen",
+ "regex 1.12.3",
+ "rustls",
+ "rustls-pemfile",
+ "rustls-pki-types",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "sysproxy",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-rustls",
+ "tracing",
+ "tracing-subscriber",
+ "tray-icon",
+ "uuid",
+ "webpki-roots 0.26.11",
+ "winreg 0.56.0",
+]
+
+[[package]]
 name = "android-activity"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3094,37 +3125,6 @@ checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
 dependencies = [
  "proc-macro2",
  "syn 2.0.117",
-]
-
-[[package]]
-name = "privacy-proxy"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "chrono",
- "eframe",
- "egui_plot",
- "httparse",
- "once_cell",
- "parking_lot",
- "rcgen",
- "regex 1.12.3",
- "rustls",
- "rustls-pemfile",
- "rustls-pki-types",
- "serde",
- "serde_json",
- "serde_yaml",
- "sysproxy",
- "thiserror 1.0.69",
- "tokio",
- "tokio-rustls",
- "tracing",
- "tracing-subscriber",
- "tray-icon",
- "uuid",
- "webpki-roots 0.26.11",
- "winreg 0.56.0",
 ]
 
 [[package]]

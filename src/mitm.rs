@@ -26,8 +26,8 @@ impl MitmManager {
         // Always generate fresh CA params
         let mut ca_params = CertificateParams::new(Vec::<String>::new()).unwrap();
         ca_params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
-        ca_params.distinguished_name.push(rcgen::DnType::CommonName, "PrivacyProxy Root CA");
-        ca_params.distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy");
+        ca_params.distinguished_name.push(rcgen::DnType::CommonName, "AI filter Root CA");
+        ca_params.distinguished_name.push(rcgen::DnType::OrganizationName, "AI filter");
 
         let (ca_key, ca_cert) = if key_path.exists() && cert_path.exists() {
             // Load existing key

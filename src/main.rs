@@ -55,7 +55,7 @@ fn create_tray_icon() -> Icon {
 async fn main() -> eframe::Result<()> {
     logger::init_logger();
 
-    println!("Starting PrivacyProxy...");
+    println!("Starting AI filter...");
 
     // 1. Load config
     let config = Config::load("config.yaml").unwrap_or_else(|_| {
@@ -130,27 +130,27 @@ async fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1100.0, 750.0])
-            .with_title("PrivacyProxy (O'zbek)"),
+            .with_title("AI filter"),
         ..Default::default()
     };
     
     let state_for_cleanup = state.clone();
 
     let res = eframe::run_native(
-        "PrivacyProxy (O'zbek)",
+        "AI filter",
         options,
         Box::new(move |cc| {
             // Create tray icon inside the event loop context (Windows requirement)
             let tray = TrayIconBuilder::new()
                 .with_menu(Box::new(menu))
-                .with_tooltip("PrivacyProxy — fonda ishlamoqda")
+                .with_tooltip("AI filter — fonda ishlamoqda")
                 .with_icon(icon)
                 .build()
                 .expect("Tray icon yaratib bo'lmadi");
             
             tray_c.borrow_mut().replace(tray);
             
-            Ok(Box::new(gui::PrivacyProxyApp::new(
+            Ok(Box::new(gui::AIFilterApp::new(
                 cc,
                 state.clone(),
                 show_id.clone(),
