@@ -1,0 +1,205 @@
+﻿C:\Users\Lenovo\.cargo\bin\cargo.exe :     Ch
+ecking privacy-proxy v1.0.0 (D:\Loyihalar\Rus
+t-app)
+строка:1 знак:1
++ C:\Users\Lenovo\.cargo\bin\cargo.exe check 
+2>&1 | Out-File -FilePath  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo          : NotSpecified: (
+        Checking pr...halar\Rust-app):String)
+ [], R    emoteException
+    + FullyQualifiedErrorId : NativeCommandEr
+ror
+ 
+error[E0432]: unresolved import `rcgen::Defau
+ltKeyGeneration`
+ --> src\mitm.rs:1:54
+  |
+1 | use rcgen::{CertificateParams, KeyPair, C
+ertificate, DefaultKeyGeneration};
+  |                                          
+            ^^^^^^^^^^^^^^^^^^^^ no `DefaultK
+eyGeneration` in the root
+
+error[E0432]: unresolved import `rustls_pki_t
+ypes`
+ --> src\mitm.rs:4:5
+  |
+4 | use rustls_pki_types::{CertificateDer, Pr
+ivateKeyDer};
+  |     ^^^^^^^^^^^^^^^^ use of unresolved mo
+dule or unlinked crate `rustls_pki_types`
+  |
+  = help: if you wanted to use a crate named 
+`rustls_pki_types`, use `cargo add rustls_pki
+_types` to add it to your `Cargo.toml`
+
+warning: unused import: `crate::detector::Det
+ectionType`
+ --> src\gui.rs:5:5
+  |
+5 | use crate::detector::DetectionType;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of 
+`#[warn(unused)]`) on by default
+
+error[E0061]: this function takes 0 arguments
+ but 1 argument was supplied
+  --> src\mitm.rs:76:19
+   |
+76 |         let key = KeyPair::generate(&Def
+aultKeyGeneration::default())?;
+   |                   ^^^^^^^^^^^^^^^^^ ----
+---------------------------- unexpected argum
+ent
+   |
+note: associated function defined here
+  --> C:\Users\Lenovo\.cargo\registry\src\ind
+ex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\sr
+c\key_pair.rs:77:9
+   |
+77 |     pub fn generate() -> Result<Self, Er
+ror> {
+   |            ^^^^^^^^
+help: remove the extra argument
+   |
+76 -         let key = KeyPair::generate(&Def
+aultKeyGeneration::default())?;
+76 +         let key = KeyPair::generate()?;
+   |
+
+error[E0599]: no function or associated item 
+named `from_params` found for struct `rcgen::
+Certificate` in the current scope
+  --> src\mitm.rs:77:33
+   |
+77 |         let cert = Certificate::from_par
+ams(params)?;
+   |                                 ^^^^^^^^
+^^^ function or associated item not found in 
+`rcgen::Certificate`
+   |
+help: there is a method `params` with a simil
+ar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\ind
+ex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\sr
+c\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &Certificate
+Params {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+
+error[E0599]: no method named `set` found for
+ struct `Sysproxy` in the current scope
+  --> src\state.rs:65:34
+   |
+65 |         if let Err(e) = sysproxy.set() {
+   |                                  ^^^ met
+hod not found in `Sysproxy`
+
+error[E0599]: no function or associated item 
+named `from_ca_cert_pem` found for struct `Ce
+rtificateParams` in the current scope
+   --> src\mitm.rs:32:45
+    |
+ 32 |             let params = CertificatePar
+ams::from_ca_cert_pem(&cert_pem).unwrap();
+    |                                        
+     ^^^^^^^^^^^^^^^^ function or associated 
+item not found in `CertificateParams`
+    |
+note: if you're trying to build a new `Certif
+icateParams`, consider using `CertificatePara
+ms::new` which returns `Result<CertificatePar
+ams, rcgen::Error>`
+   --> C:\Users\Lenovo\.cargo\registry\src\in
+dex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\s
+rc\certificate.rs:122:2
+    |
+122 |     pub fn new(subject_alt_names: impl 
+Into<Vec<String>>) -> Result<Self, Error> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no function or associated item 
+named `from_params` found for struct `rcgen::
+Certificate` in the current scope
+  --> src\mitm.rs:33:37
+   |
+33 |             let cert = Certificate::from
+_params(params).unwrap();
+   |                                     ^^^^
+^^^^^^^ function or associated item not found
+ in `rcgen::Certificate`
+   |
+help: there is a method `params` with a simil
+ar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\ind
+ex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\sr
+c\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &Certificate
+Params {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+
+error[E0061]: this function takes 0 arguments
+ but 1 argument was supplied
+  --> src\mitm.rs:43:23
+   |
+43 |             let key = KeyPair::generate(
+&DefaultKeyGeneration::default()).unwrap();
+   |                       ^^^^^^^^^^^^^^^^^ 
+-------------------------------- unexpected a
+rgument
+   |
+note: associated function defined here
+  --> C:\Users\Lenovo\.cargo\registry\src\ind
+ex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\sr
+c\key_pair.rs:77:9
+   |
+77 |     pub fn generate() -> Result<Self, Er
+ror> {
+   |            ^^^^^^^^
+help: remove the extra argument
+   |
+43 -             let key = KeyPair::generate(
+&DefaultKeyGeneration::default()).unwrap();
+43 +             let key = KeyPair::generate(
+).unwrap();
+   |
+
+error[E0599]: no function or associated item 
+named `from_params` found for struct `rcgen::
+Certificate` in the current scope
+  --> src\mitm.rs:44:37
+   |
+44 |             let cert = Certificate::from
+_params(params).unwrap();
+   |                                     ^^^^
+^^^^^^^ function or associated item not found
+ in `rcgen::Certificate`
+   |
+help: there is a method `params` with a simil
+ar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\ind
+ex.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\sr
+c\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &Certificate
+Params {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^
+
+Some errors have detailed explanations: E0061
+, E0432, E0599.
+For more information about an error, try `rus
+tc --explain E0061`.
+warning: `privacy-proxy` (bin "privacy-proxy"
+) generated 1 warning
+error: could not compile `privacy-proxy` (bin
+ "privacy-proxy") due to 9 previous errors; 1
+ warning emitted

@@ -1,0 +1,57 @@
+    Checking privacy-proxy v1.0.0 (D:\Loyihalar\Rust-app)
+error[E0432]: unresolved import `rcgen::DefaultKeyGeneration`
+ --> src\mitm.rs:1:54
+  |
+1 | use rcgen::{CertificateParams, KeyPair, Certificate, DefaultKeyGeneration};
+  |                                                      ^^^^^^^^^^^^^^^^^^^^ no `DefaultKeyGeneration` in the root
+
+error[E0432]: unresolved import `rustls_pki_types`
+ --> src\mitm.rs:4:5
+  |
+4 | use rustls_pki_types::{CertificateDer, PrivateKeyDer};
+  |     ^^^^^^^^^^^^^^^^ use of unresolved module or unlinked crate `rustls_pki_types`
+  |
+  = help: if you wanted to use a crate named `rustls_pki_types`, use `cargo add rustls_pki_types` to add it to your `Cargo.toml`
+
+warning: unused import: `crate::detector::DetectionType`
+ --> src\gui.rs:5:5
+  |
+5 | use crate::detector::DetectionType;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
+  --> src\mitm.rs:72:26
+   |
+72 |         let mut params = CertificateParams::new(vec![domain.to_string()])?;
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the `?` operator cannot be applied to type `CertificateParams`
+   |
+   = help: the nightly-only, unstable trait `Try` is not implemented for `CertificateParams`
+
+error[E0599]: no function or associated item named `from_ca_cert_pem` found for struct `CertificateParams` in the current scope
+    --> src\mitm.rs:32:45
+     |
+  32 |             let params = CertificateParams::from_ca_cert_pem(&cert_pem).unwrap();
+     |                                             ^^^^^^^^^^^^^^^^ function or associated item not found in `CertificateParams`
+     |
+note: if you're trying to build a new `CertificateParams`, consider using `CertificateParams::new` which returns `CertificateParams`
+    --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.11.3\src\lib.rs:1223:2
+     |
+1223 |     pub fn new(subject_alt_names: impl Into<Vec<String>>) -> Self {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\state.rs:58:13
+   |
+58 |         let mut sysproxy = sysproxy::Sysproxy {
+   |             ----^^^^^^^^
+   |             |
+   |             help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0277, E0432, E0599.
+For more information about an error, try `rustc --explain E0277`.
+warning: `privacy-proxy` (bin "privacy-proxy") generated 2 warnings
+error: could not compile `privacy-proxy` (bin "privacy-proxy") due to 4 previous errors; 2 warnings emitted

@@ -1,0 +1,11 @@
+    Checking privacy-proxy v1.0.0 (D:\Loyihalar\Rust-app)
+src\gui.rs:5:5: warning: unused import: `crate::detector::DetectionType`
+src\proxy.rs:171:29: warning: variable does not need to be mutable
+src\mitm.rs:96:69: error[E0599]: no function or associated item named `from_der` found for struct `CertificateSigningRequest` in the current scope: function or associated item not found in `CertificateSigningRequest`
+src\mitm.rs:99:58: error[E0308]: mismatched types: expected `&Certificate`, found `&CertificateParams`
+src\proxy.rs:63:28: warning: unused variable: `e`: help: if this is intentional, prefix it with an underscore: `_e`
+src\proxy.rs:54:33: warning: unused variable: `client_addr`: help: if this is intentional, prefix it with an underscore: `_client_addr`
+src\proxy.rs:92:9: warning: variable does not need to be mutable
+src\mitm.rs:67:19: error[E0382]: use of moved value: `params`: value used here after move
+warning: `privacy-proxy` (bin "privacy-proxy") generated 5 warnings
+error: could not compile `privacy-proxy` (bin "privacy-proxy") due to 3 previous errors; 5 warnings emitted

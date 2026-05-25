@@ -1,0 +1,211 @@
+    Checking privacy-proxy v1.0.0 (D:\Loyihalar\Rust-app)
+warning: unused import: `crate::detector::DetectionType`
+ --> src\gui.rs:5:5
+  |
+5 | use crate::detector::DetectionType;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PrivateKeyDer`
+ --> src\mitm.rs:4:41
+  |
+4 | use rustls::pki_types::{CertificateDer, PrivateKeyDer};
+  |                                         ^^^^^^^^^^^^^
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:76:16
+   |
+76 |         params.distinguished_name.push(rcgen::DnType::CommonName, domain);
+   |                ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+76 |         params.unwrap().distinguished_name.push(rcgen::DnType::CommonName, domain);
+   |                +++++++++
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:77:16
+   |
+77 |         params.distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy Intercepted");
+   |                ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+77 |         params.unwrap().distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy Intercepted");
+   |                +++++++++
+
+error[E0061]: this function takes 0 arguments but 1 argument was supplied
+  --> src\mitm.rs:79:19
+   |
+79 |         let key = KeyPair::generate(&PKCS_ECDSA_P256_SHA256)?;
+   |                   ^^^^^^^^^^^^^^^^^ ----------------------- unexpected argument of type `&rcgen::SignatureAlgorithm`
+   |
+note: associated function defined here
+  --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\src\key_pair.rs:77:9
+   |
+77 |     pub fn generate() -> Result<Self, Error> {
+   |            ^^^^^^^^
+help: remove the extra argument
+   |
+79 -         let key = KeyPair::generate(&PKCS_ECDSA_P256_SHA256)?;
+79 +         let key = KeyPair::generate()?;
+   |
+
+error[E0609]: no field `key_pair` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:80:16
+   |
+80 |         params.key_pair = Some(key);
+   |                ^^^^^^^^ unknown field
+   |
+   = note: available fields are: `not_before`, `not_after`, `serial_number`, `subject_alt_names`, `distinguished_name` ... and 8 others
+
+error[E0599]: no function or associated item named `from_params` found for struct `rcgen::Certificate` in the current scope
+  --> src\mitm.rs:82:33
+   |
+82 |         let cert = Certificate::from_params(params)?;
+   |                                 ^^^^^^^^^^^ function or associated item not found in `rcgen::Certificate`
+   |
+help: there is a method `params` with a similar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\src\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &CertificateParams {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0609]: no field `is_ca` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:31:20
+   |
+31 |             params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+   |                    ^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+31 |             params.unwrap().is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+   |                    +++++++++
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:32:20
+   |
+32 |             params.distinguished_name.push(rcgen::DnType::CommonName, "PrivacyProxy Root CA");
+   |                    ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+32 |             params.unwrap().distinguished_name.push(rcgen::DnType::CommonName, "PrivacyProxy Root CA");
+   |                    +++++++++
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:33:20
+   |
+33 |             params.distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy");
+   |                    ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+33 |             params.unwrap().distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy");
+   |                    +++++++++
+
+error[E0609]: no field `key_pair` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:34:20
+   |
+34 |             params.key_pair = Some(key);
+   |                    ^^^^^^^^ unknown field
+   |
+   = note: available fields are: `not_before`, `not_after`, `serial_number`, `subject_alt_names`, `distinguished_name` ... and 8 others
+
+error[E0599]: no function or associated item named `from_params` found for struct `rcgen::Certificate` in the current scope
+  --> src\mitm.rs:36:26
+   |
+36 |             Certificate::from_params(params).unwrap()
+   |                          ^^^^^^^^^^^ function or associated item not found in `rcgen::Certificate`
+   |
+help: there is a method `params` with a similar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\src\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &CertificateParams {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0061]: this function takes 0 arguments but 1 argument was supplied
+  --> src\mitm.rs:40:23
+   |
+40 |             let key = KeyPair::generate(&PKCS_ECDSA_P256_SHA256).unwrap();
+   |                       ^^^^^^^^^^^^^^^^^ ----------------------- unexpected argument of type `&rcgen::SignatureAlgorithm`
+   |
+note: associated function defined here
+  --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\src\key_pair.rs:77:9
+   |
+77 |     pub fn generate() -> Result<Self, Error> {
+   |            ^^^^^^^^
+help: remove the extra argument
+   |
+40 -             let key = KeyPair::generate(&PKCS_ECDSA_P256_SHA256).unwrap();
+40 +             let key = KeyPair::generate().unwrap();
+   |
+
+error[E0609]: no field `is_ca` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:43:20
+   |
+43 |             params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+   |                    ^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+43 |             params.unwrap().is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+   |                    +++++++++
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:44:20
+   |
+44 |             params.distinguished_name.push(rcgen::DnType::CommonName, "PrivacyProxy Root CA");
+   |                    ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+44 |             params.unwrap().distinguished_name.push(rcgen::DnType::CommonName, "PrivacyProxy Root CA");
+   |                    +++++++++
+
+error[E0609]: no field `distinguished_name` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:45:20
+   |
+45 |             params.distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy");
+   |                    ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+help: one of the expressions' fields has a field of the same name
+   |
+45 |             params.unwrap().distinguished_name.push(rcgen::DnType::OrganizationName, "PrivacyProxy");
+   |                    +++++++++
+
+error[E0609]: no field `key_pair` on type `Result<CertificateParams, rcgen::Error>`
+  --> src\mitm.rs:46:20
+   |
+46 |             params.key_pair = Some(key);
+   |                    ^^^^^^^^ unknown field
+   |
+   = note: available fields are: `not_before`, `not_after`, `serial_number`, `subject_alt_names`, `distinguished_name` ... and 8 others
+
+error[E0599]: no function or associated item named `from_params` found for struct `rcgen::Certificate` in the current scope
+  --> src\mitm.rs:48:37
+   |
+48 |             let cert = Certificate::from_params(params).unwrap();
+   |                                     ^^^^^^^^^^^ function or associated item not found in `rcgen::Certificate`
+   |
+help: there is a method `params` with a similar name, but with different arguments
+  --> C:\Users\Lenovo\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\rcgen-0.13.2\src\certificate.rs:33:2
+   |
+33 |     pub fn params(&self) -> &CertificateParams {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\state.rs:58:13
+   |
+58 |         let mut sysproxy = sysproxy::Sysproxy {
+   |             ----^^^^^^^^
+   |             |
+   |             help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0061, E0599, E0609.
+For more information about an error, try `rustc --explain E0061`.
+warning: `privacy-proxy` (bin "privacy-proxy") generated 3 warnings
+error: could not compile `privacy-proxy` (bin "privacy-proxy") due to 16 previous errors; 3 warnings emitted

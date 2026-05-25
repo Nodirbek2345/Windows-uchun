@@ -1,0 +1,76 @@
+warning: unused import: `crate::detector::DetectionType`
+ --> src\gui.rs:5:5
+  |
+5 | use crate::detector::DetectionType;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `rustls::pki_types::CertificateDer`
+ --> src\mitm.rs:4:5
+  |
+4 | use rustls::pki_types::CertificateDer;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\proxy.rs:171:29
+    |
+171 | ...   let mut secure_c_read = tokio:...
+    |           ----^^^^^^^^^^^^^
+    |           |
+    |           help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `e`
+  --> src\proxy.rs:63:28
+   |
+63 | ...  if let Err(e) = handle_connectio...
+   |                 ^ help: if this is intentional, prefix it with an underscore: `_e`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `client_addr`
+  --> src\proxy.rs:54:33
+   |
+54 | ..._stream, client_addr) = listener.a...
+   |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_client_addr`
+
+warning: variable does not need to be mutable
+  --> src\proxy.rs:92:9
+   |
+92 | ...et mut masked_text = filter.mask_t...
+   |       ----^^^^^^^^^^^
+   |       |
+   |       help: remove this `mut`
+
+warning: method `get_original` is never used
+  --> src\filter.rs:24:12
+   |
+12 | impl MappingStore {
+   | ----------------- method in this implementation
+...
+24 |     pub fn get_original(&self, token:...
+   |            ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `restore_text` is never used
+  --> src\filter.rs:58:12
+   |
+34 | impl MultiFilter {
+   | ---------------- method in this implementation
+...
+58 |     pub fn restore_text(&self, text: ...
+   |            ^^^^^^^^^^^^
+
+warning: `privacy-proxy` (bin "privacy-proxy") generated 8 warnings (run `cargo fix --bin "privacy-proxy" -p privacy-proxy` to apply 6 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.92s
+     Running `target\debug\privacy-proxy.exe`
+[2m2026-05-25T13:18:49.514767Z[0m [32m INFO[0m Logger initialized.
+Starting PrivacyProxy...
+System proxy holati o'zgardi (Yoqilgan: true)
+🔑 Mavjud Root CA yuklandi.
+Proxy server stopped: Обычно разрешается только одно использование адреса сокета (протокол/сетевой адрес/порт). (os error 10048)
+System proxy holati o'zgardi (Yoqilgan: false)
+Dastur to'xtatildi, Windows system proxy o'chirildi.
