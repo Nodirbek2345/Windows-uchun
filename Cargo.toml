@@ -1,6 +1,6 @@
 [package]
 name = "ai-filter"
-version = "1.1.2"
+version = "1.2.0"
 edition = "2021"
 description = "AI filter — AI xizmatlarga yuboriladigan shaxsiy ma'lumotlarni filterlash"
 
@@ -34,6 +34,7 @@ rustls-pemfile = "2.1"
 webpki-roots = "0.26"
 pki-types = { package = "rustls-pki-types", version = "1.7" }
 winreg = "0.56.0"
+self_update = { version = "0.41", default-features = false, features = ["rustls", "archive-zip", "compression-zip-deflate"] }
 
 [profile.release]
 opt-level = 3

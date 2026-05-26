@@ -258,7 +258,7 @@ impl eframe::App for AIFilterApp {
                         ui.label(egui::RichText::new("Online").size(9.0).color(NEON));
                     });
                     ui.add_space(4.0);
-                    ui.label(egui::RichText::new("v1.1.2").size(9.0).color(DIM));
+                    ui.label(egui::RichText::new("v1.2.0").size(9.0).color(DIM));
                 });
             });
 
@@ -266,6 +266,16 @@ impl eframe::App for AIFilterApp {
         egui::CentralPanel::default()
             .frame(egui::Frame::none().fill(BG_DARK).inner_margin(10.0))
             .show(ctx, |ui| {
+                if self.state.update_available.load(std::sync::atomic::Ordering::Relaxed) {
+                    card_frame(egui::Color32::from_rgb(200, 100, 0)).show(ui, |ui| {
+                        ui.horizontal(|ui| {
+                            ui.label(egui::RichText::new("🚀 YANGI VERSIYA: ").strong().color(egui::Color32::from_rgb(200, 100, 0)));
+                            ui.label(egui::RichText::new("Dastur muvaffaqiyatli yangilandi! \nO'zgarishlar kuchga kirishi uchun dasturni yoping va qayta ishga tushiring.").color(egui::Color32::WHITE).size(11.0));
+                        });
+                    });
+                    ui.add_space(8.0);
+                }
+
                 match self.selected_tab.as_str() {
                     "Bosh sahifa" => self.page_dashboard(ui),
                     "AI Xizmatlari" => self.page_ai_services(ui),

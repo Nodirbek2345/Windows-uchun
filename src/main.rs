@@ -7,6 +7,7 @@ mod proxy;
 mod gui;
 mod mitm;
 mod logger;
+mod updater;
 
 use std::sync::Arc;
 use std::cell::RefCell;
@@ -102,7 +103,19 @@ async fn main() -> eframe::Result<()> {
     let detector = Arc::new(Detector::new());
     let mapping = MappingStore::new();
 
-    // 4. Start Proxy Server in background
+    // 4. Background auto-update check
+    let update_state = state.clone();
+    std::thread::spawn(move || {
+        println!("Checking for updates from GitHub...");
+        if let Ok(updated) = updater::update_in_background() {
+            if updated {
+                println!("Update applied! Requires restart.");
+                update_state.update_available.store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+    });
+
+    // 5. Start Proxy Server in background
     let proxy_state = state.clone();
     let proxy_target_sites = config.target_sites.clone();
     tokio::spawn(async move {

@@ -23,6 +23,9 @@ pub struct AppState {
     
     // Logs
     pub logs: RwLock<Vec<LogEntry>>,
+    
+    // Updates
+    pub update_available: AtomicBool,
 }
 
 use winreg::enums::*;
@@ -53,6 +56,7 @@ impl AppState {
             stats_image_filtered: AtomicUsize::new(0),
             stats_total_requests: AtomicUsize::new(0),
             logs: RwLock::new(Vec::new()),
+            update_available: AtomicBool::new(false),
         };
         state.sync_system_proxy(true);
         state
