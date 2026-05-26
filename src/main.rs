@@ -63,7 +63,14 @@ async fn main() -> eframe::Result<()> {
         println!("config.yaml topilmadi, standart sozlamalar ishlatilmoqda.");
         Config {
             proxy: config::ProxyConfig { port: 8081, host: "127.0.0.1".into(), ssl_insecure: false },
-            target_sites: vec!["chat.openai.com".into()],
+            target_sites: vec![
+                "chat.openai.com".into(),
+                "claude.ai".into(),
+                "gemini.google.com".into(),
+                "copilot.microsoft.com".into(),
+                "grok.x.ai".into(),
+                "perplexity.ai".into(),
+            ],
             text_filter: config::TextFilterConfig {
                 enabled: true,
                 methods: config::MethodsConfig { regex: true, blacklist: false },

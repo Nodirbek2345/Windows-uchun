@@ -256,7 +256,7 @@ impl eframe::App for AIFilterApp {
                         ui.label(egui::RichText::new("Online").size(9.0).color(NEON));
                     });
                     ui.add_space(4.0);
-                    ui.label(egui::RichText::new("v1.1.0").size(9.0).color(DIM));
+                    ui.label(egui::RichText::new("v1.1.1").size(9.0).color(DIM));
                 });
             });
 
@@ -817,7 +817,7 @@ impl AIFilterApp {
                 ui.label(egui::RichText::new("🛡").size(40.0));
                 ui.add_space(6.0);
                 ui.label(egui::RichText::new("PrivacyProxy").size(20.0).strong().color(NEON));
-                ui.label(egui::RichText::new("v1.1.0").size(12.0).color(DIM));
+                ui.label(egui::RichText::new("v1.1.1").size(12.0).color(DIM));
                 ui.add_space(10.0);
                 ui.label(egui::RichText::new("Shaxsiy ma'lumotlarni\nAI xizmatlaridan himoya\nqilish uchun lokal proksi").size(11.0).color(egui::Color32::from_rgb(180, 190, 220)));
                 ui.add_space(10.0);
