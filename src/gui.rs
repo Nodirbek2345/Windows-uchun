@@ -107,23 +107,24 @@ impl AIFilterApp {
 }
 
 // === CONSTANTS ===
-const BG_DARK: egui::Color32 = egui::Color32::from_rgb(10, 12, 18);
-const BG_CARD: egui::Color32 = egui::Color32::from_rgb(15, 18, 30);
-const BG_SIDEBAR: egui::Color32 = egui::Color32::from_rgb(12, 14, 22);
-const NEON: egui::Color32 = egui::Color32::from_rgb(230, 240, 255);
+const BG_DARK: egui::Color32 = egui::Color32::from_rgb(11, 13, 23);
+const BG_CARD: egui::Color32 = egui::Color32::from_rgb(18, 22, 35);
+const BG_SIDEBAR: egui::Color32 = egui::Color32::from_rgb(14, 16, 26);
+const NEON: egui::Color32 = egui::Color32::from_rgb(240, 245, 255);
 const DIM: egui::Color32 = egui::Color32::from_rgb(120, 130, 150);
-const PURPLE: egui::Color32 = egui::Color32::from_rgb(130, 80, 255);
-const BLUE: egui::Color32 = egui::Color32::from_rgb(80, 150, 255);
-const CYAN: egui::Color32 = egui::Color32::from_rgb(80, 200, 255);
-const ORANGE: egui::Color32 = egui::Color32::from_rgb(255, 150, 80);
-const GREEN: egui::Color32 = egui::Color32::from_rgb(80, 255, 120);
-const RED: egui::Color32 = egui::Color32::from_rgb(255, 80, 100);
+const PURPLE: egui::Color32 = egui::Color32::from_rgb(125, 45, 250);
+const BLUE: egui::Color32 = egui::Color32::from_rgb(0, 120, 255);
+const CYAN: egui::Color32 = egui::Color32::from_rgb(0, 210, 210);
+const ORANGE: egui::Color32 = egui::Color32::from_rgb(255, 140, 0);
+const GREEN: egui::Color32 = egui::Color32::from_rgb(0, 230, 100);
+const RED: egui::Color32 = egui::Color32::from_rgb(255, 60, 90);
+const BORDER: egui::Color32 = egui::Color32::from_rgb(30, 35, 50);
 
 fn card_frame(border: egui::Color32) -> egui::Frame {
     egui::Frame::none()
         .fill(BG_CARD)
-        .rounding(15.0)
-        .inner_margin(20.0)
+        .rounding(12.0)
+        .inner_margin(18.0)
         .stroke(egui::Stroke::new(1.0, border))
 }
 
@@ -150,69 +151,115 @@ impl eframe::App for AIFilterApp {
             return;
         }
         
-        // === ICON-ONLY SIDEBAR ===
+        // === TOP HEADER ===
+        egui::TopBottomPanel::top("header")
+            .frame(egui::Frame::none().fill(BG_DARK).inner_margin(egui::Margin::symmetric(25.0, 15.0)))
+            .show(ctx, |ui| {
+                ui.horizontal(|ui| {
+                    let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(32.0, 32.0), egui::Sense::hover());
+                    ui.painter().rect_filled(rect, 8.0, egui::Color32::from_rgb(30, 15, 60));
+                    ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "🛡", egui::FontId::proportional(20.0), PURPLE);
+                    
+                    ui.add_space(15.0);
+                    ui.label(egui::RichText::new("AI filter").size(24.0).strong().color(egui::Color32::WHITE));
+                    
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.add_space(10.0);
+                        ui.label(egui::RichText::new("⋮").size(24.0).color(DIM));
+                        ui.add_space(10.0);
+                        
+                        let active = self.state.is_active();
+                        let dot = if active { GREEN } else { RED };
+                        let bg = if active { egui::Color32::from_rgb(15, 45, 25) } else { egui::Color32::from_rgb(45, 15, 25) };
+                        let text = if active { "Yoqilgan" } else { "O'chirilgan" };
+                        
+                        let frame = egui::Frame::none().fill(bg).rounding(15.0).inner_margin(egui::Margin::symmetric(14.0, 6.0));
+                        let resp = frame.show(ui, |ui| {
+                            ui.horizontal(|ui| {
+                                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
+                                ui.painter().circle_filled(r.center(), 5.0, dot);
+                                ui.add_space(8.0);
+                                ui.label(egui::RichText::new(text).color(dot).size(14.0));
+                            });
+                        }).response;
+                        
+                        let interact = ui.interact(resp.rect, ui.id().with("toggle_top"), egui::Sense::click());
+                        if interact.clicked() { self.state.set_active(!active); }
+                        if interact.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
+                    });
+                });
+            });
+
+        // === ICON-SIDEBAR ===
         egui::SidePanel::left("sidebar")
-            .exact_width(60.0)
+            .exact_width(85.0)
             .frame(
                 egui::Frame::none()
                     .fill(BG_SIDEBAR)
-                    .inner_margin(egui::Margin::symmetric(8.0, 15.0))
+                    .inner_margin(egui::Margin::symmetric(0.0, 20.0))
             )
             .show(ctx, |ui| {
                 ui.vertical_centered(|ui| {
-                    ui.add_space(8.0);
-                    // App logo
-                    ui.label(egui::RichText::new("🛡").size(28.0));
-                    ui.add_space(25.0);
+                    ui.add_space(10.0);
                     
                     let tabs = [
-                        ("Bosh sahifa", "🏠", NEON),
-                        ("AI Xizmatlari", "🤖", GREEN),
-                        ("Statistika", "📊", BLUE),
-                        ("Filterlar", "🔒", PURPLE),
+                        ("Bosh sahifa", "🏠", PURPLE),
+                        ("AI", "🤖", DIM),
+                        ("Statistika", "📊", DIM),
+                        ("Filterlar", "🔒", DIM),
                         ("Sozlamalar", "⚙", DIM),
                         ("Logs", "📋", DIM),
                         ("Yordam", "❓", DIM),
                         ("Haqida", "ℹ", DIM),
                     ];
                     
-                    for (name, icon, accent) in tabs {
+                    for (name, icon, _accent) in tabs {
                         let is_selected = self.selected_tab == name;
                         
-                        let bg = if is_selected {
-                            egui::Color32::from_rgba_unmultiplied(80, 60, 200, 180)
-                        } else {
-                            egui::Color32::TRANSPARENT
-                        };
-                        let tc = if is_selected { accent } else { DIM };
+                        let (rect, resp) = ui.allocate_exact_size(egui::Vec2::new(85.0, 65.0), egui::Sense::click());
+                        let color = if is_selected { PURPLE } else { DIM };
+                        let text_color = if is_selected { NEON } else { DIM };
                         
-                        let frame = egui::Frame::none().fill(bg).rounding(10.0).inner_margin(egui::Margin::symmetric(10.0, 10.0));
-                        let resp = frame.show(ui, |ui| {
-                            ui.label(egui::RichText::new(icon).size(22.0).color(tc));
-                        }).response;
-                        
-                        let interact = ui.interact(resp.rect, ui.id().with(name), egui::Sense::click());
-                        if interact.clicked() {
-                            self.selected_tab = name.to_string();
+                        if is_selected {
+                            // Left glow line
+                            let line_rect = egui::Rect::from_min_size(rect.min, egui::Vec2::new(3.0, rect.height()));
+                            ui.painter().rect_filled(line_rect, 0.0, PURPLE);
+                            // Subtle gradient background
+                            let bg_rect = egui::Rect::from_min_size(rect.min + egui::Vec2::new(3.0, 0.0), egui::Vec2::new(rect.width() - 3.0, rect.height()));
+                            ui.painter().rect_filled(bg_rect, 0.0, egui::Color32::from_rgb(25, 20, 45));
                         }
-                        if interact.hovered() {
+                        
+                        if resp.hovered() {
                             ctx.set_cursor_icon(egui::CursorIcon::PointingHand);
                             if !is_selected {
-                                resp.on_hover_text(name);
+                                ui.painter().rect_filled(rect, 0.0, egui::Color32::from_rgb(20, 24, 38));
                             }
                         }
-                        ui.add_space(3.0);
+                        
+                        // Draw Icon and Text manually to perfectly center
+                        ui.painter().text(rect.center() - egui::Vec2::new(0.0, 10.0), egui::Align2::CENTER_CENTER, icon, egui::FontId::proportional(24.0), color);
+                        ui.painter().text(rect.center() + egui::Vec2::new(0.0, 16.0), egui::Align2::CENTER_CENTER, name, egui::FontId::proportional(11.0), text_color);
+                        
+                        if resp.clicked() {
+                            if name == "AI" { self.selected_tab = "AI Xizmatlari".to_string(); }
+                            else { self.selected_tab = name.to_string(); }
+                        }
+                        ui.add_space(5.0);
                     }
                 });
                 
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    ui.add_space(10.0);
-                    // Green dot for status
+                    ui.add_space(15.0);
                     let active = self.state.is_active();
                     let dot = if active { GREEN } else { RED };
-                    let (dot_rect, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
-                    ui.painter().circle_filled(dot_rect.center(), 5.0, dot);
-                    ui.label(egui::RichText::new("v1.0.0").size(11.0).color(DIM));
+                    ui.horizontal(|ui| {
+                        let (dot_rect, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
+                        ui.painter().circle_filled(dot_rect.center(), 4.0, dot);
+                        ui.add_space(4.0);
+                        ui.label(egui::RichText::new("Online").size(12.0).color(NEON));
+                    });
+                    ui.add_space(6.0);
+                    ui.label(egui::RichText::new("v1.0.0").size(12.0).color(DIM));
                 });
             });
 
@@ -336,138 +383,161 @@ impl AIFilterApp {
 
     // ==================== BOSH SAHIFA ====================
     fn page_dashboard(&self, ui: &mut egui::Ui) {
-        // Header
-        ui.horizontal(|ui| {
-            ui.vertical(|ui| {
-                ui.label(egui::RichText::new("🛡 AI filter Dashboard").size(32.0).strong().color(NEON));
-                ui.label(egui::RichText::new("Sizning maxfiyligingiz — bizning ustuvor vazifamiz").size(16.0).color(DIM));
-            });
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                let active = self.state.is_active();
-                let dot = if active { GREEN } else { RED };
-                let bg = if active { egui::Color32::from_rgb(20, 40, 25) } else { egui::Color32::from_rgb(40, 20, 25) };
-                let border = if active { egui::Color32::from_rgb(50, 150, 80) } else { egui::Color32::from_rgb(150, 50, 80) };
-                
-                let resp = egui::Frame::none().fill(bg).rounding(20.0)
-                    .inner_margin(egui::Margin::symmetric(15.0, 8.0))
-                    .stroke(egui::Stroke::new(1.0, border))
-                    .show(ui, |ui| {
-                        ui.horizontal(|ui| {
-                            let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(12.0, 12.0), egui::Sense::hover());
-                            ui.painter().circle_filled(rect.center(), 6.0, dot);
-                            ui.add_space(5.0);
-                            ui.label(egui::RichText::new(if active { "Yoqilgan" } else { "O'chirilgan" }).color(dot));
-                        });
-                    }).response;
-                let interact = ui.interact(resp.rect, ui.id().with("toggle"), egui::Sense::click());
-                if interact.clicked() { self.state.set_active(!active); }
-                if interact.hovered() { ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand); }
-            });
-        });
+        // Since Header is now global, skip it here.
+        ui.add_space(5.0);
 
-        ui.add_space(25.0);
-
-        // Stat cards
+        // 1. Stat cards top row
         ui.columns(4, |cols| {
             let items = [
-                ("Matn/PII", self.state.stats_text_filtered.load(Ordering::Relaxed), PURPLE, "💬"),
+                ("Matn/Pil", self.state.stats_text_filtered.load(Ordering::Relaxed), PURPLE, "💬"),
                 ("Telefon", self.state.stats_phone_filtered.load(Ordering::Relaxed), BLUE, "📞"),
                 ("Email", self.state.stats_email_filtered.load(Ordering::Relaxed), CYAN, "✉"),
                 ("Rasm/Yuz", self.state.stats_image_filtered.load(Ordering::Relaxed), ORANGE, "👤"),
             ];
             for (i, (title, val, color, icon)) in items.iter().enumerate() {
-                card_frame(*color).show(&mut cols[i], |ui| {
-                    ui.set_width(ui.available_width());
-                    ui.horizontal(|ui| {
-                        ui.label(egui::RichText::new(*icon).size(24.0));
-                        ui.vertical(|ui| {
-                            ui.label(egui::RichText::new(*title).size(14.0).color(DIM));
-                            ui.label(egui::RichText::new(val.to_string()).size(32.0).strong().color(NEON));
-                            ui.label(egui::RichText::new("bloklangan").size(12.0).color(egui::Color32::from_rgb(100, 110, 130)));
+                // Custom frame for stat cards
+                egui::Frame::none()
+                    .fill(egui::Color32::from_rgb(15, 18, 28))
+                    .rounding(15.0)
+                    .inner_margin(egui::Margin::same(20.0))
+                    .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(20, 25, 40)))
+                    .show(&mut cols[i], |ui| {
+                        ui.set_width(ui.available_width());
+                        ui.vertical_centered(|ui| {
+                            ui.label(egui::RichText::new(*icon).size(28.0).color(*color));
+                            ui.add_space(8.0);
+                            ui.label(egui::RichText::new(val.to_string()).size(32.0).strong().color(egui::Color32::WHITE));
+                            ui.add_space(4.0);
+                            ui.label(egui::RichText::new(*title).size(13.0).color(DIM));
+                            
+                            // Bottom glowing line indicator
+                            ui.add_space(15.0);
+                            let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(ui.available_width(), 3.0), egui::Sense::hover());
+                            ui.painter().rect_filled(rect, 1.5, *color);
                         });
                     });
-                });
             }
         });
 
-        ui.add_space(25.0);
+        ui.add_space(20.0);
 
-        // Chart
-        card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
+        // 2. Chart "Faoliyat (bugun)"
+        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("Faoliyat statistikasi (bugun)").size(18.0).strong().color(NEON));
+                ui.label(egui::RichText::new("Faoliyat (bugun)").size(18.0).strong().color(egui::Color32::WHITE));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    egui::Frame::none().fill(PURPLE).rounding(10.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| {
-                        ui.label(egui::RichText::new("24 soat").color(egui::Color32::WHITE).size(12.0));
-                    });
-                    ui.add_space(8.0);
-                    ui.label(egui::RichText::new("7 kun").size(12.0).color(DIM));
-                    ui.add_space(8.0);
-                    ui.label(egui::RichText::new("30 kun").size(12.0).color(DIM));
+                    // Small pill 30k
+                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("30k").size(12.0).color(DIM)));
+                    ui.add_space(5.0);
+                    // Small pill 7k
+                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("7k").size(12.0).color(DIM)));
+                    ui.add_space(5.0);
+                    // Active pill 24s
+                    egui::Frame::none().fill(PURPLE).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("24s").color(egui::Color32::WHITE).size(12.0)));
                 });
             });
             ui.add_space(10.0);
 
-            let line = Line::new(PlotPoints::from_iter((0..100).map(|i| {
+            // The line chart with a fill underneath
+            let line = Line::new(PlotPoints::from_iter((0..280).map(|i| {
                 let x = i as f64 * 0.1;
-                [x, (x.sin() * 2.0) + (x * 1.5).cos() + 4.0]
-            }))).color(BLUE).width(2.0);
-            Plot::new("stats_plot").view_aspect(4.0).show_axes([true, true]).show_grid(true)
+                [x, (x*0.5).sin() * 2.0 + (x * 1.2).cos() + x*0.1 + 3.0]
+            })))
+            .color(PURPLE)
+            .width(3.0)
+            .fill(0.0); // Fills area underneath to y=0 with transparency
+            
+            Plot::new("activity_plot")
+                .view_aspect(3.5)
+                .show_axes([true, true])
+                .show_grid(false)
+                .show_x(true)
+                .show_y(true)
+                .allow_drag(false)
+                .allow_zoom(false)
                 .show(ui, |p| p.line(line));
         });
 
-        ui.add_space(25.0);
+        ui.add_space(20.0);
 
-        // Bottom 2 cards
-        ui.columns(2, |cols| {
-            // Filter holati
-            card_frame(egui::Color32::from_rgb(30, 40, 70)).show(&mut cols[0], |ui| {
-                ui.set_width(ui.available_width());
-                ui.set_min_height(130.0);
-                ui.label(egui::RichText::new("Filter holati").size(16.0).strong().color(NEON));
-                ui.add_space(10.0);
-                ui.horizontal(|ui| {
-                    let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(80.0, 80.0), egui::Sense::hover());
-                    let total = self.state.stats_text_filtered.load(Ordering::Relaxed)
-                        + self.state.stats_phone_filtered.load(Ordering::Relaxed)
-                        + self.state.stats_email_filtered.load(Ordering::Relaxed);
-                    ui.painter().circle_stroke(rect.center(), 35.0, egui::Stroke::new(8.0, egui::Color32::from_rgb(50, 60, 100)));
-                    if total > 0 {
-                        ui.painter().circle_stroke(rect.center(), 35.0, egui::Stroke::new(4.0, GREEN));
-                    }
-                    ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, &format!("{}", total), egui::FontId::proportional(20.0), NEON);
-                    ui.add_space(25.0);
-                    ui.vertical(|ui| {
-                        for (name, color, val) in [
-                            ("Matn/PII", PURPLE, self.state.stats_text_filtered.load(Ordering::Relaxed)),
-                            ("Telefon", BLUE, self.state.stats_phone_filtered.load(Ordering::Relaxed)),
-                            ("Email", CYAN, self.state.stats_email_filtered.load(Ordering::Relaxed)),
-                            ("Rasm/Yuz", ORANGE, self.state.stats_image_filtered.load(Ordering::Relaxed)),
-                        ] {
-                            ui.horizontal(|ui| {
-                                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
-                                ui.painter().circle_filled(r.center(), 4.0, color);
-                                ui.label(egui::RichText::new(name).size(13.0));
-                                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                                    ui.label(egui::RichText::new(val.to_string()).size(13.0).color(NEON));
-                                });
+        // 3. Filter holati
+        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
+            ui.label(egui::RichText::new("Filter holati").size(18.0).strong().color(egui::Color32::WHITE));
+            ui.add_space(15.0);
+            
+            ui.horizontal(|ui| {
+                ui.add_space(20.0);
+                // Draw Donut chart on LHS
+                let circle_radius = 55.0;
+                let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(circle_radius * 2.0, circle_radius * 2.0), egui::Sense::hover());
+                
+                // Track arc lengths
+                let total = self.state.stats_text_filtered.load(Ordering::Relaxed)
+                    + self.state.stats_phone_filtered.load(Ordering::Relaxed)
+                    + self.state.stats_email_filtered.load(Ordering::Relaxed)
+                    + self.state.stats_image_filtered.load(Ordering::Relaxed);
+                
+                let background_color = egui::Color32::from_rgb(25, 20, 50);
+                ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(15.0, background_color));
+                
+                if total > 0 {
+                    ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(8.0, PURPLE)); // Simplified segment logic since drawing standard path arcs in egui needs custom Mesh. Overriding with one solid color for simplicity now
+                }
+                
+                // Center text
+                let percent_str = if total > 0 { "100%" } else { "0%" };
+                ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, percent_str, egui::FontId::proportional(26.0), egui::Color32::WHITE);
+                
+                ui.add_space(50.0);
+                
+                // Legend
+                ui.vertical(|ui| {
+                    ui.add_space(15.0);
+                    let stats = [
+                        ("Matn/Pil", PURPLE, self.state.stats_text_filtered.load(Ordering::Relaxed)),
+                        ("Telefon", BLUE, self.state.stats_phone_filtered.load(Ordering::Relaxed)),
+                        ("Email", CYAN, self.state.stats_email_filtered.load(Ordering::Relaxed)),
+                        ("Rasm/Yuz", ORANGE, self.state.stats_image_filtered.load(Ordering::Relaxed)),
+                    ];
+                    
+                    for (name, color, val) in stats {
+                        ui.horizontal(|ui| {
+                            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
+                            ui.painter().circle_filled(r.center(), 5.0, color);
+                            ui.add_space(8.0);
+                            ui.label(egui::RichText::new(name).size(14.0).color(DIM));
+                            
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(egui::RichText::new(val.to_string()).size(15.0).color(egui::Color32::WHITE));
                             });
-                        }
-                    });
+                        });
+                        ui.add_space(8.0);
+                    }
                 });
             });
-            // Eslatma
-            card_frame(egui::Color32::from_rgb(30, 40, 70)).show(&mut cols[1], |ui| {
-                ui.set_width(ui.available_width());
-                ui.set_min_height(130.0);
-                ui.label(egui::RichText::new("Eslatma").size(16.0).strong().color(NEON));
-                ui.add_space(15.0);
-                ui.horizontal(|ui| {
-                    egui::Frame::none().fill(egui::Color32::from_rgb(40, 30, 80)).rounding(30.0).inner_margin(20.0)
-                        .stroke(egui::Stroke::new(2.0, PURPLE))
-                        .show(ui, |ui| { ui.label(egui::RichText::new("🛡").size(30.0)); });
-                    ui.add_space(20.0);
-                    ui.label(egui::RichText::new("Rust orqali filter qoidalari\ndoim fonda faol.").size(16.0).color(egui::Color32::from_rgb(180, 190, 220)));
+        });
+
+        ui.add_space(20.0);
+        
+        // 4. AI Filter Banner Bottom
+        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
+            ui.horizontal(|ui| {
+                // Neon AI icon box
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(70.0, 70.0), egui::Sense::hover());
+                ui.painter().rect_filled(r, 15.0, egui::Color32::from_rgb(20, 12, 40));
+                ui.painter().rect_stroke(r, 15.0, egui::Stroke::new(1.5, PURPLE));
+                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(28.0), NEON);
+                
+                ui.add_space(20.0);
+                
+                ui.vertical(|ui| {
+                    ui.add_space(5.0);
+                    ui.label(egui::RichText::new("Filter").size(18.0).strong().color(egui::Color32::WHITE));
+                    ui.label(egui::RichText::new("AI assistent orqali filter qoidalari\ndoim donda faol.").size(14.0).color(DIM));
+                });
+                
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.label(egui::RichText::new(">").size(24.0).color(DIM));
                 });
             });
         });
