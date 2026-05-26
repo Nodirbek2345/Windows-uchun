@@ -289,7 +289,16 @@ impl AIFilterApp {
 
     // ==================== AI XIZMATLARI ====================
     fn page_ai_services(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("🤖 AI Xizmatlari Monitoringi").size(32.0).strong().color(NEON));
+        ui.horizontal(|ui| {
+            // Draw a shiny AI icon manually
+            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(36.0, 36.0), egui::Sense::hover());
+            ui.painter().rect_filled(r, 8.0, egui::Color32::from_rgb(20, 15, 40));
+            ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(22.0), NEON);
+            ui.add_space(10.0);
+            ui.label(egui::RichText::new("AI Xizmatlari Monitoringi").size(32.0).strong().color(NEON));
+        });
+        
+        ui.add_space(5.0);
         ui.label(egui::RichText::new("Qaysi AI platformalarga filtr qo'llanilmoqda").size(16.0).color(DIM));
         ui.add_space(25.0);
 
@@ -302,40 +311,45 @@ impl AIFilterApp {
                 let (r, _) = ui.allocate_exact_size(egui::Vec2::new(14.0, 14.0), egui::Sense::hover());
                 ui.painter().circle_filled(r.center(), 7.0, dot_color);
                 ui.add_space(8.0);
-                ui.label(egui::RichText::new(if active { "Filter FAOL — AI trafligi tekshirilmoqda" } else { "Filter O'CHIRILGAN" }).size(16.0).strong().color(NEON));
+                ui.label(egui::RichText::new(if active { "Filter FAOL — AI trafigi tekshirilmoqda" } else { "Filter O'CHIRILGAN" }).size(16.0).strong().color(NEON));
             });
         });
 
         ui.add_space(20.0);
 
-        // AI Services list
+        // AI Services list without breaking Unicode
         let services = [
-            ("ChatGPT", "chat.openai.com", "🟢", "OpenAI", CYAN),
-            ("Claude", "claude.ai", "🟣", "Anthropic", PURPLE),
-            ("Gemini", "gemini.google.com", "🔵", "Google", BLUE),
-            ("Copilot", "copilot.microsoft.com", "🟠", "Microsoft", ORANGE),
-            ("Grok", "grok.x.ai", "⚪", "xAI", DIM),
-            ("Perplexity", "perplexity.ai", "🟡", "Perplexity AI", GREEN),
+            ("ChatGPT", "chat.openai.com", "O", "OpenAI", CYAN, egui::Color32::from_rgb(0, 200, 100)),
+            ("Claude", "claude.ai", "A", "Anthropic", PURPLE, egui::Color32::from_rgb(180, 100, 255)),
+            ("Gemini", "gemini.google.com", "G", "Google", BLUE, egui::Color32::from_rgb(80, 150, 255)),
+            ("Copilot", "copilot.microsoft.com", "M", "Microsoft", ORANGE, egui::Color32::from_rgb(255, 120, 50)),
+            ("Grok", "grok.x.ai", "X", "xAI", DIM, egui::Color32::from_rgb(200, 200, 200)),
+            ("Perplexity", "perplexity.ai", "P", "Perplexity AI", GREEN, egui::Color32::from_rgb(50, 200, 200)),
         ];
 
         let target_sites = self.state.config.read().target_sites.clone();
 
         ui.columns(2, |cols| {
-            for (i, (name, domain, emoji, company, color)) in services.iter().enumerate() {
+            for (i, (name, domain, initial, company, border_col, dot_col)) in services.iter().enumerate() {
                 let col = &mut cols[i % 2];
                 let is_monitored = target_sites.iter().any(|s| domain.contains(s) || s.contains(domain));
                 
-                let border = if is_monitored { *color } else { egui::Color32::from_rgb(30, 35, 50) };
+                let border = if is_monitored { *border_col } else { egui::Color32::from_rgb(30, 35, 50) };
                 card_frame(border).show(col, |ui| {
                     ui.set_width(ui.available_width());
                     ui.set_min_height(70.0);
                     ui.horizontal(|ui| {
-                        ui.label(egui::RichText::new(*emoji).size(32.0));
-                        ui.add_space(10.0);
+                        // Custom Avatar Circle
+                        let (r, _) = ui.allocate_exact_size(egui::Vec2::new(40.0, 40.0), egui::Sense::hover());
+                        ui.painter().circle_stroke(r.center(), 20.0, egui::Stroke::new(2.0, *dot_col));
+                        ui.painter().circle_filled(r.center(), 16.0, egui::Color32::from_rgb(25, 25, 35));
+                        ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, *initial, egui::FontId::proportional(22.0), *border_col);
+                        
+                        ui.add_space(15.0);
                         ui.vertical(|ui| {
                             ui.label(egui::RichText::new(*name).size(18.0).strong().color(NEON));
                             ui.label(egui::RichText::new(*company).size(13.0).color(DIM));
-                            ui.label(egui::RichText::new(*domain).size(12.0).color(*color).monospace());
+                            ui.label(egui::RichText::new(*domain).size(12.0).color(*border_col).monospace());
                         });
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if is_monitored {
@@ -369,8 +383,12 @@ impl AIFilterApp {
         card_frame(egui::Color32::from_rgb(30, 40, 70)).show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("💡").size(24.0));
-                ui.add_space(10.0);
+                // Info icon manual drawing
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(24.0, 24.0), egui::Sense::hover());
+                ui.painter().circle_stroke(r.center(), 12.0, egui::Stroke::new(2.0, CYAN));
+                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "i", egui::FontId::proportional(16.0), CYAN);
+                
+                ui.add_space(15.0);
                 ui.vertical(|ui| {
                     ui.label(egui::RichText::new("Qanday ishlaydi?").size(16.0).strong().color(NEON));
                     ui.label(egui::RichText::new(
