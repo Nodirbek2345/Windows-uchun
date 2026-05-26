@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 mod config;
 mod state;
 mod detector;
@@ -129,7 +130,7 @@ async fn main() -> eframe::Result<()> {
     // 6. Start GUI
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1100.0, 750.0])
+            .with_inner_size([420.0, 820.0])
             .with_title("AI filter"),
         ..Default::default()
     };

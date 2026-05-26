@@ -123,8 +123,8 @@ const BORDER: egui::Color32 = egui::Color32::from_rgb(30, 35, 50);
 fn card_frame(border: egui::Color32) -> egui::Frame {
     egui::Frame::none()
         .fill(BG_CARD)
-        .rounding(12.0)
-        .inner_margin(18.0)
+        .rounding(10.0)
+        .inner_margin(10.0)
         .stroke(egui::Stroke::new(1.0, border))
 }
 
@@ -153,33 +153,33 @@ impl eframe::App for AIFilterApp {
         
         // === TOP HEADER ===
         egui::TopBottomPanel::top("header")
-            .frame(egui::Frame::none().fill(BG_DARK).inner_margin(egui::Margin::symmetric(25.0, 15.0)))
+            .frame(egui::Frame::none().fill(BG_DARK).inner_margin(egui::Margin::symmetric(12.0, 8.0)))
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
-                    let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(32.0, 32.0), egui::Sense::hover());
-                    ui.painter().rect_filled(rect, 8.0, egui::Color32::from_rgb(30, 15, 60));
-                    ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "🛡", egui::FontId::proportional(20.0), PURPLE);
+                    let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(24.0, 24.0), egui::Sense::hover());
+                    ui.painter().rect_filled(rect, 6.0, egui::Color32::from_rgb(30, 15, 60));
+                    ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, "🛡", egui::FontId::proportional(14.0), PURPLE);
                     
-                    ui.add_space(15.0);
-                    ui.label(egui::RichText::new("AI filter").size(24.0).strong().color(egui::Color32::WHITE));
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("PrivacyProxy").size(16.0).strong().color(egui::Color32::WHITE));
                     
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.add_space(10.0);
-                        ui.label(egui::RichText::new("⋮").size(24.0).color(DIM));
-                        ui.add_space(10.0);
+                        ui.add_space(4.0);
+                        ui.label(egui::RichText::new("⋮").size(18.0).color(DIM));
+                        ui.add_space(6.0);
                         
                         let active = self.state.is_active();
                         let dot = if active { GREEN } else { RED };
                         let bg = if active { egui::Color32::from_rgb(15, 45, 25) } else { egui::Color32::from_rgb(45, 15, 25) };
                         let text = if active { "Yoqilgan" } else { "O'chirilgan" };
                         
-                        let frame = egui::Frame::none().fill(bg).rounding(15.0).inner_margin(egui::Margin::symmetric(14.0, 6.0));
+                        let frame = egui::Frame::none().fill(bg).rounding(12.0).inner_margin(egui::Margin::symmetric(10.0, 4.0));
                         let resp = frame.show(ui, |ui| {
                             ui.horizontal(|ui| {
-                                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
-                                ui.painter().circle_filled(r.center(), 5.0, dot);
-                                ui.add_space(8.0);
-                                ui.label(egui::RichText::new(text).color(dot).size(14.0));
+                                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
+                                ui.painter().circle_filled(r.center(), 4.0, dot);
+                                ui.add_space(5.0);
+                                ui.label(egui::RichText::new(text).color(dot).size(11.0));
                             });
                         }).response;
                         
@@ -192,15 +192,15 @@ impl eframe::App for AIFilterApp {
 
         // === ICON-SIDEBAR ===
         egui::SidePanel::left("sidebar")
-            .exact_width(85.0)
+            .exact_width(65.0)
             .frame(
                 egui::Frame::none()
                     .fill(BG_SIDEBAR)
-                    .inner_margin(egui::Margin::symmetric(0.0, 20.0))
+                    .inner_margin(egui::Margin::symmetric(0.0, 10.0))
             )
             .show(ctx, |ui| {
                 ui.vertical_centered(|ui| {
-                    ui.add_space(10.0);
+                    ui.add_space(4.0);
                     
                     let tabs = [
                         ("Bosh sahifa", "🏠", PURPLE),
@@ -216,16 +216,14 @@ impl eframe::App for AIFilterApp {
                     for (name, icon, _accent) in tabs {
                         let is_selected = self.selected_tab == name;
                         
-                        let (rect, resp) = ui.allocate_exact_size(egui::Vec2::new(85.0, 65.0), egui::Sense::click());
+                        let (rect, resp) = ui.allocate_exact_size(egui::Vec2::new(65.0, 48.0), egui::Sense::click());
                         let color = if is_selected { PURPLE } else { DIM };
                         let text_color = if is_selected { NEON } else { DIM };
                         
                         if is_selected {
-                            // Left glow line
-                            let line_rect = egui::Rect::from_min_size(rect.min, egui::Vec2::new(3.0, rect.height()));
+                            let line_rect = egui::Rect::from_min_size(rect.min, egui::Vec2::new(2.5, rect.height()));
                             ui.painter().rect_filled(line_rect, 0.0, PURPLE);
-                            // Subtle gradient background
-                            let bg_rect = egui::Rect::from_min_size(rect.min + egui::Vec2::new(3.0, 0.0), egui::Vec2::new(rect.width() - 3.0, rect.height()));
+                            let bg_rect = egui::Rect::from_min_size(rect.min + egui::Vec2::new(2.5, 0.0), egui::Vec2::new(rect.width() - 2.5, rect.height()));
                             ui.painter().rect_filled(bg_rect, 0.0, egui::Color32::from_rgb(25, 20, 45));
                         }
                         
@@ -236,36 +234,35 @@ impl eframe::App for AIFilterApp {
                             }
                         }
                         
-                        // Draw Icon and Text manually to perfectly center
-                        ui.painter().text(rect.center() - egui::Vec2::new(0.0, 10.0), egui::Align2::CENTER_CENTER, icon, egui::FontId::proportional(24.0), color);
-                        ui.painter().text(rect.center() + egui::Vec2::new(0.0, 16.0), egui::Align2::CENTER_CENTER, name, egui::FontId::proportional(11.0), text_color);
+                        ui.painter().text(rect.center() - egui::Vec2::new(0.0, 8.0), egui::Align2::CENTER_CENTER, icon, egui::FontId::proportional(18.0), color);
+                        ui.painter().text(rect.center() + egui::Vec2::new(0.0, 13.0), egui::Align2::CENTER_CENTER, name, egui::FontId::proportional(9.0), text_color);
                         
                         if resp.clicked() {
                             if name == "AI" { self.selected_tab = "AI Xizmatlari".to_string(); }
                             else { self.selected_tab = name.to_string(); }
                         }
-                        ui.add_space(5.0);
+                        ui.add_space(2.0);
                     }
                 });
                 
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    ui.add_space(15.0);
+                    ui.add_space(8.0);
                     let active = self.state.is_active();
                     let dot = if active { GREEN } else { RED };
                     ui.horizontal(|ui| {
-                        let (dot_rect, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
-                        ui.painter().circle_filled(dot_rect.center(), 4.0, dot);
-                        ui.add_space(4.0);
-                        ui.label(egui::RichText::new("Online").size(12.0).color(NEON));
+                        let (dot_rect, _) = ui.allocate_exact_size(egui::Vec2::new(6.0, 6.0), egui::Sense::hover());
+                        ui.painter().circle_filled(dot_rect.center(), 3.0, dot);
+                        ui.add_space(3.0);
+                        ui.label(egui::RichText::new("Online").size(9.0).color(NEON));
                     });
-                    ui.add_space(6.0);
-                    ui.label(egui::RichText::new("v1.0.0").size(12.0).color(DIM));
+                    ui.add_space(4.0);
+                    ui.label(egui::RichText::new("v1.1.0").size(9.0).color(DIM));
                 });
             });
 
         // === CENTRAL PANEL ===
         egui::CentralPanel::default()
-            .frame(egui::Frame::none().fill(BG_DARK).inner_margin(30.0))
+            .frame(egui::Frame::none().fill(BG_DARK).inner_margin(10.0))
             .show(ctx, |ui| {
                 match self.selected_tab.as_str() {
                     "Bosh sahifa" => self.page_dashboard(ui),
@@ -289,35 +286,33 @@ impl AIFilterApp {
 
     // ==================== AI XIZMATLARI ====================
     fn page_ai_services(&self, ui: &mut egui::Ui) {
+        egui::ScrollArea::vertical().show(ui, |ui| {
         ui.horizontal(|ui| {
-            // Draw a shiny AI icon manually
-            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(36.0, 36.0), egui::Sense::hover());
-            ui.painter().rect_filled(r, 8.0, egui::Color32::from_rgb(20, 15, 40));
-            ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(22.0), NEON);
-            ui.add_space(10.0);
-            ui.label(egui::RichText::new("AI Xizmatlari Monitoringi").size(32.0).strong().color(NEON));
+            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(24.0, 24.0), egui::Sense::hover());
+            ui.painter().rect_filled(r, 6.0, egui::Color32::from_rgb(20, 15, 40));
+            ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(14.0), NEON);
+            ui.add_space(6.0);
+            ui.label(egui::RichText::new("AI Xizmatlari").size(18.0).strong().color(NEON));
         });
         
-        ui.add_space(5.0);
-        ui.label(egui::RichText::new("Qaysi AI platformalarga filtr qo'llanilmoqda").size(16.0).color(DIM));
-        ui.add_space(25.0);
+        ui.add_space(3.0);
+        ui.label(egui::RichText::new("Qaysi AI platformalarga filtr qo'llanilmoqda").size(11.0).color(DIM));
+        ui.add_space(10.0);
 
-        // Status bar
         let active = self.state.is_active();
         card_frame(if active { GREEN } else { RED }).show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.horizontal(|ui| {
                 let dot_color = if active { GREEN } else { RED };
-                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(14.0, 14.0), egui::Sense::hover());
-                ui.painter().circle_filled(r.center(), 7.0, dot_color);
-                ui.add_space(8.0);
-                ui.label(egui::RichText::new(if active { "Filter FAOL — AI trafigi tekshirilmoqda" } else { "Filter O'CHIRILGAN" }).size(16.0).strong().color(NEON));
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
+                ui.painter().circle_filled(r.center(), 5.0, dot_color);
+                ui.add_space(5.0);
+                ui.label(egui::RichText::new(if active { "Filter FAOL" } else { "Filter O'CHIRILGAN" }).size(12.0).strong().color(NEON));
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
 
-        // AI Services list without breaking Unicode
         let services = [
             ("ChatGPT", "chat.openai.com", "O", "OpenAI", CYAN, egui::Color32::from_rgb(0, 200, 100)),
             ("Claude", "claude.ai", "A", "Anthropic", PURPLE, egui::Color32::from_rgb(180, 100, 255)),
@@ -329,80 +324,72 @@ impl AIFilterApp {
 
         let target_sites = self.state.config.read().target_sites.clone();
 
-        ui.columns(2, |cols| {
-            for (i, (name, domain, initial, company, border_col, dot_col)) in services.iter().enumerate() {
-                let col = &mut cols[i % 2];
-                let is_monitored = target_sites.iter().any(|s| domain.contains(s) || s.contains(domain));
-                
-                let border = if is_monitored { *border_col } else { egui::Color32::from_rgb(30, 35, 50) };
-                card_frame(border).show(col, |ui| {
-                    ui.set_width(ui.available_width());
-                    ui.set_min_height(70.0);
-                    ui.horizontal(|ui| {
-                        // Custom Avatar Circle
-                        let (r, _) = ui.allocate_exact_size(egui::Vec2::new(40.0, 40.0), egui::Sense::hover());
-                        ui.painter().circle_stroke(r.center(), 20.0, egui::Stroke::new(2.0, *dot_col));
-                        ui.painter().circle_filled(r.center(), 16.0, egui::Color32::from_rgb(25, 25, 35));
-                        ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, *initial, egui::FontId::proportional(22.0), *border_col);
-                        
-                        ui.add_space(15.0);
-                        ui.vertical(|ui| {
-                            ui.label(egui::RichText::new(*name).size(18.0).strong().color(NEON));
-                            ui.label(egui::RichText::new(*company).size(13.0).color(DIM));
-                            ui.label(egui::RichText::new(*domain).size(12.0).color(*border_col).monospace());
-                        });
-                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            if is_monitored {
-                                egui::Frame::none()
-                                    .fill(egui::Color32::from_rgb(20, 50, 30))
-                                    .rounding(12.0)
-                                    .inner_margin(egui::Margin::symmetric(10.0, 5.0))
-                                    .stroke(egui::Stroke::new(1.0, GREEN))
-                                    .show(ui, |ui| {
-                                        ui.label(egui::RichText::new("● FAOL").size(13.0).color(GREEN));
-                                    });
-                            } else {
-                                egui::Frame::none()
-                                    .fill(egui::Color32::from_rgb(30, 30, 35))
-                                    .rounding(12.0)
-                                    .inner_margin(egui::Margin::symmetric(10.0, 5.0))
-                                    .show(ui, |ui| {
-                                        ui.label(egui::RichText::new("○ Nofaol").size(13.0).color(DIM));
-                                    });
-                            }
-                        });
+        for (name, domain, initial, company, border_col, dot_col) in services {
+            let is_monitored = target_sites.iter().any(|s| domain.contains(s) || s.contains(domain));
+            let border = if is_monitored { border_col } else { egui::Color32::from_rgb(30, 35, 50) };
+            card_frame(border).show(ui, |ui| {
+                ui.set_width(ui.available_width());
+                ui.horizontal(|ui| {
+                    let (r, _) = ui.allocate_exact_size(egui::Vec2::new(28.0, 28.0), egui::Sense::hover());
+                    ui.painter().circle_stroke(r.center(), 14.0, egui::Stroke::new(1.5, dot_col));
+                    ui.painter().circle_filled(r.center(), 11.0, egui::Color32::from_rgb(25, 25, 35));
+                    ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, initial, egui::FontId::proportional(14.0), border_col);
+                    
+                    ui.add_space(8.0);
+                    ui.vertical(|ui| {
+                        ui.label(egui::RichText::new(name).size(13.0).strong().color(NEON));
+                        ui.label(egui::RichText::new(company).size(10.0).color(DIM));
+                    });
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if is_monitored {
+                            egui::Frame::none()
+                                .fill(egui::Color32::from_rgb(20, 50, 30))
+                                .rounding(8.0)
+                                .inner_margin(egui::Margin::symmetric(6.0, 3.0))
+                                .stroke(egui::Stroke::new(1.0, GREEN))
+                                .show(ui, |ui| {
+                                    ui.label(egui::RichText::new("● FAOL").size(9.0).color(GREEN));
+                                });
+                        } else {
+                            egui::Frame::none()
+                                .fill(egui::Color32::from_rgb(30, 30, 35))
+                                .rounding(8.0)
+                                .inner_margin(egui::Margin::symmetric(6.0, 3.0))
+                                .show(ui, |ui| {
+                                    ui.label(egui::RichText::new("○ Nofaol").size(9.0).color(DIM));
+                                });
+                        }
                     });
                 });
-                col.add_space(10.0);
-            }
-        });
+            });
+            ui.add_space(4.0);
+        }
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
 
-        // Bottom info card
         card_frame(egui::Color32::from_rgb(30, 40, 70)).show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.horizontal(|ui| {
-                // Info icon manual drawing
-                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(24.0, 24.0), egui::Sense::hover());
-                ui.painter().circle_stroke(r.center(), 12.0, egui::Stroke::new(2.0, CYAN));
-                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "i", egui::FontId::proportional(16.0), CYAN);
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(18.0, 18.0), egui::Sense::hover());
+                ui.painter().circle_stroke(r.center(), 9.0, egui::Stroke::new(1.5, CYAN));
+                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "i", egui::FontId::proportional(11.0), CYAN);
                 
-                ui.add_space(15.0);
+                ui.add_space(8.0);
                 ui.vertical(|ui| {
-                    ui.label(egui::RichText::new("Qanday ishlaydi?").size(16.0).strong().color(NEON));
+                    ui.label(egui::RichText::new("Qanday ishlaydi?").size(12.0).strong().color(NEON));
                     ui.label(egui::RichText::new(
-                        "Siz yuqoridagi AI xizmatlaridan birortasiga kirsangiz, dastur avtomatik ravishda barcha trafikni tekshiradi va shaxsiy ma'lumotlarni (telefon, email, passport, PINFL va h.k.) maskalaydi. Boshqa saytlarga ta'sir qilmaydi."
-                    ).size(14.0).color(egui::Color32::from_rgb(180, 190, 220)));
+                        "AI xizmatlariga kirsangiz, dastur trafikni tekshiradi va shaxsiy ma'lumotlarni maskalaydi."
+                    ).size(10.0).color(egui::Color32::from_rgb(180, 190, 220)));
                 });
             });
         });
+        }); // end ScrollArea
     }
 
     // ==================== BOSH SAHIFA ====================
     fn page_dashboard(&self, ui: &mut egui::Ui) {
-        // Since Header is now global, skip it here.
-        ui.add_space(5.0);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+        ui.add_space(3.0);
 
         // 1. Stat cards top row
         ui.columns(4, |cols| {
@@ -413,60 +400,53 @@ impl AIFilterApp {
                 ("Rasm/Yuz", self.state.stats_image_filtered.load(Ordering::Relaxed), ORANGE, "👤"),
             ];
             for (i, (title, val, color, icon)) in items.iter().enumerate() {
-                // Custom frame for stat cards
                 egui::Frame::none()
                     .fill(egui::Color32::from_rgb(15, 18, 28))
-                    .rounding(15.0)
-                    .inner_margin(egui::Margin::same(20.0))
+                    .rounding(10.0)
+                    .inner_margin(egui::Margin::same(8.0))
                     .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(20, 25, 40)))
                     .show(&mut cols[i], |ui| {
                         ui.set_width(ui.available_width());
                         ui.vertical_centered(|ui| {
-                            ui.label(egui::RichText::new(*icon).size(28.0).color(*color));
-                            ui.add_space(8.0);
-                            ui.label(egui::RichText::new(val.to_string()).size(32.0).strong().color(egui::Color32::WHITE));
+                            ui.label(egui::RichText::new(*icon).size(18.0).color(*color));
                             ui.add_space(4.0);
-                            ui.label(egui::RichText::new(*title).size(13.0).color(DIM));
-                            
-                            // Bottom glowing line indicator
-                            ui.add_space(15.0);
-                            let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(ui.available_width(), 3.0), egui::Sense::hover());
-                            ui.painter().rect_filled(rect, 1.5, *color);
+                            ui.label(egui::RichText::new(val.to_string()).size(20.0).strong().color(egui::Color32::WHITE));
+                            ui.add_space(2.0);
+                            ui.label(egui::RichText::new(*title).size(9.0).color(DIM));
+                            ui.add_space(6.0);
+                            let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(ui.available_width(), 2.0), egui::Sense::hover());
+                            ui.painter().rect_filled(rect, 1.0, *color);
                         });
                     });
             }
         });
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
 
-        // 2. Chart "Faoliyat (bugun)"
-        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
+        // 2. Chart
+        egui::Frame::none().fill(BG_CARD).rounding(10.0).inner_margin(10.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("Faoliyat (bugun)").size(18.0).strong().color(egui::Color32::WHITE));
+                ui.label(egui::RichText::new("Faoliyat (bugun)").size(13.0).strong().color(egui::Color32::WHITE));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    // Small pill 30k
-                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("30k").size(12.0).color(DIM)));
-                    ui.add_space(5.0);
-                    // Small pill 7k
-                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("7k").size(12.0).color(DIM)));
-                    ui.add_space(5.0);
-                    // Active pill 24s
-                    egui::Frame::none().fill(PURPLE).rounding(6.0).inner_margin(egui::Margin::symmetric(10.0, 5.0)).show(ui, |ui| ui.label(egui::RichText::new("24s").color(egui::Color32::WHITE).size(12.0)));
+                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(5.0).inner_margin(egui::Margin::symmetric(6.0, 3.0)).show(ui, |ui| ui.label(egui::RichText::new("30k").size(9.0).color(DIM)));
+                    ui.add_space(3.0);
+                    egui::Frame::none().fill(egui::Color32::from_rgb(20, 22, 35)).rounding(5.0).inner_margin(egui::Margin::symmetric(6.0, 3.0)).show(ui, |ui| ui.label(egui::RichText::new("7k").size(9.0).color(DIM)));
+                    ui.add_space(3.0);
+                    egui::Frame::none().fill(PURPLE).rounding(5.0).inner_margin(egui::Margin::symmetric(6.0, 3.0)).show(ui, |ui| ui.label(egui::RichText::new("24s").color(egui::Color32::WHITE).size(9.0)));
                 });
             });
-            ui.add_space(10.0);
+            ui.add_space(6.0);
 
-            // The line chart with a fill underneath
             let line = Line::new(PlotPoints::from_iter((0..280).map(|i| {
                 let x = i as f64 * 0.1;
                 [x, (x*0.5).sin() * 2.0 + (x * 1.2).cos() + x*0.1 + 3.0]
             })))
             .color(PURPLE)
-            .width(3.0)
-            .fill(0.0); // Fills area underneath to y=0 with transparency
+            .width(2.0)
+            .fill(0.0);
             
             Plot::new("activity_plot")
-                .view_aspect(3.5)
+                .view_aspect(3.0)
                 .show_axes([true, true])
                 .show_grid(false)
                 .show_x(true)
@@ -476,41 +456,37 @@ impl AIFilterApp {
                 .show(ui, |p| p.line(line));
         });
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
 
         // 3. Filter holati
-        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
-            ui.label(egui::RichText::new("Filter holati").size(18.0).strong().color(egui::Color32::WHITE));
-            ui.add_space(15.0);
+        egui::Frame::none().fill(BG_CARD).rounding(10.0).inner_margin(10.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
+            ui.label(egui::RichText::new("Filter holati").size(13.0).strong().color(egui::Color32::WHITE));
+            ui.add_space(8.0);
             
             ui.horizontal(|ui| {
-                ui.add_space(20.0);
-                // Draw Donut chart on LHS
-                let circle_radius = 55.0;
+                ui.add_space(8.0);
+                let circle_radius = 40.0;
                 let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(circle_radius * 2.0, circle_radius * 2.0), egui::Sense::hover());
                 
-                // Track arc lengths
                 let total = self.state.stats_text_filtered.load(Ordering::Relaxed)
                     + self.state.stats_phone_filtered.load(Ordering::Relaxed)
                     + self.state.stats_email_filtered.load(Ordering::Relaxed)
                     + self.state.stats_image_filtered.load(Ordering::Relaxed);
                 
                 let background_color = egui::Color32::from_rgb(25, 20, 50);
-                ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(15.0, background_color));
+                ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(12.0, background_color));
                 
                 if total > 0 {
-                    ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(8.0, PURPLE)); // Simplified segment logic since drawing standard path arcs in egui needs custom Mesh. Overriding with one solid color for simplicity now
+                    ui.painter().circle_stroke(rect.center(), circle_radius, egui::Stroke::new(6.0, PURPLE));
                 }
                 
-                // Center text
                 let percent_str = if total > 0 { "100%" } else { "0%" };
-                ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, percent_str, egui::FontId::proportional(26.0), egui::Color32::WHITE);
+                ui.painter().text(rect.center(), egui::Align2::CENTER_CENTER, percent_str, egui::FontId::proportional(18.0), egui::Color32::WHITE);
                 
-                ui.add_space(50.0);
+                ui.add_space(20.0);
                 
-                // Legend
                 ui.vertical(|ui| {
-                    ui.add_space(15.0);
+                    ui.add_space(6.0);
                     let stats = [
                         ("Matn/Pil", PURPLE, self.state.stats_text_filtered.load(Ordering::Relaxed)),
                         ("Telefon", BLUE, self.state.stats_phone_filtered.load(Ordering::Relaxed)),
@@ -520,52 +496,51 @@ impl AIFilterApp {
                     
                     for (name, color, val) in stats {
                         ui.horizontal(|ui| {
-                            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
-                            ui.painter().circle_filled(r.center(), 5.0, color);
+                            let (r, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
+                            ui.painter().circle_filled(r.center(), 4.0, color);
+                            ui.add_space(5.0);
+                            ui.label(egui::RichText::new(name).size(11.0).color(DIM));
                             ui.add_space(8.0);
-                            ui.label(egui::RichText::new(name).size(14.0).color(DIM));
-                            
-                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                                ui.label(egui::RichText::new(val.to_string()).size(15.0).color(egui::Color32::WHITE));
-                            });
+                            ui.label(egui::RichText::new(val.to_string()).size(12.0).color(egui::Color32::WHITE));
                         });
-                        ui.add_space(8.0);
+                        ui.add_space(4.0);
                     }
                 });
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
         
-        // 4. AI Filter Banner Bottom
-        egui::Frame::none().fill(BG_CARD).rounding(15.0).inner_margin(20.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
+        // 4. AI Filter Banner
+        egui::Frame::none().fill(BG_CARD).rounding(10.0).inner_margin(10.0).stroke(egui::Stroke::new(1.0, BORDER)).show(ui, |ui| {
             ui.horizontal(|ui| {
-                // Neon AI icon box
-                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(70.0, 70.0), egui::Sense::hover());
-                ui.painter().rect_filled(r, 15.0, egui::Color32::from_rgb(20, 12, 40));
-                ui.painter().rect_stroke(r, 15.0, egui::Stroke::new(1.5, PURPLE));
-                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(28.0), NEON);
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::new(48.0, 48.0), egui::Sense::hover());
+                ui.painter().rect_filled(r, 12.0, egui::Color32::from_rgb(20, 12, 40));
+                ui.painter().rect_stroke(r, 12.0, egui::Stroke::new(1.0, PURPLE));
+                ui.painter().text(r.center(), egui::Align2::CENTER_CENTER, "AI", egui::FontId::proportional(20.0), NEON);
                 
-                ui.add_space(20.0);
+                ui.add_space(10.0);
                 
                 ui.vertical(|ui| {
-                    ui.add_space(5.0);
-                    ui.label(egui::RichText::new("Filter").size(18.0).strong().color(egui::Color32::WHITE));
-                    ui.label(egui::RichText::new("AI assistent orqali filter qoidalari\ndoim donda faol.").size(14.0).color(DIM));
+                    ui.add_space(3.0);
+                    ui.label(egui::RichText::new("Filter").size(14.0).strong().color(egui::Color32::WHITE));
+                    ui.label(egui::RichText::new("AI assistent orqali\nfilter qoidalari\ndoim donda faol.").size(10.0).color(DIM));
                 });
                 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.label(egui::RichText::new(">").size(24.0).color(DIM));
+                    ui.label(egui::RichText::new(">").size(18.0).color(DIM));
                 });
             });
         });
+        }); // end ScrollArea
     }
 
     // ==================== STATISTIKA ====================
     fn page_statistika(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("📊 Batafsil Statistika").size(32.0).strong().color(NEON));
-        ui.label(egui::RichText::new("Barcha ushlab qolingan shaxsiy ma'lumotlar tahlili").size(16.0).color(DIM));
-        ui.add_space(25.0);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+        ui.label(egui::RichText::new("📊 Statistika").size(18.0).strong().color(NEON));
+        ui.label(egui::RichText::new("Shaxsiy ma'lumotlar tahlili").size(11.0).color(DIM));
+        ui.add_space(10.0);
 
         let total_req = self.state.stats_total_requests.load(Ordering::Relaxed);
         let text = self.state.stats_text_filtered.load(Ordering::Relaxed);
@@ -577,224 +552,222 @@ impl AIFilterApp {
         ui.columns(3, |cols| {
             card_frame(BLUE).show(&mut cols[0], |ui| {
                 ui.set_width(ui.available_width());
-                ui.label(egui::RichText::new("Jami so'rovlar").size(14.0).color(DIM));
-                ui.label(egui::RichText::new(total_req.to_string()).size(36.0).strong().color(NEON));
+                ui.label(egui::RichText::new("So'rovlar").size(10.0).color(DIM));
+                ui.label(egui::RichText::new(total_req.to_string()).size(22.0).strong().color(NEON));
             });
             card_frame(PURPLE).show(&mut cols[1], |ui| {
                 ui.set_width(ui.available_width());
-                ui.label(egui::RichText::new("Jami PII bloklangan").size(14.0).color(DIM));
-                ui.label(egui::RichText::new(total_pii.to_string()).size(36.0).strong().color(NEON));
+                ui.label(egui::RichText::new("PII blok").size(10.0).color(DIM));
+                ui.label(egui::RichText::new(total_pii.to_string()).size(22.0).strong().color(NEON));
             });
             card_frame(GREEN).show(&mut cols[2], |ui| {
                 ui.set_width(ui.available_width());
-                ui.label(egui::RichText::new("Xavfsizlik darajasi").size(14.0).color(DIM));
-                ui.label(egui::RichText::new(if total_pii > 0 { "Faol himoya" } else { "Kutilmoqda" }).size(20.0).strong().color(GREEN));
+                ui.label(egui::RichText::new("Xavfsizlik").size(10.0).color(DIM));
+                ui.label(egui::RichText::new(if total_pii > 0 { "Faol" } else { "Kutish" }).size(14.0).strong().color(GREEN));
             });
         });
 
-        ui.add_space(25.0);
+        ui.add_space(10.0);
 
         card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
-            ui.label(egui::RichText::new("Kategoriya bo'yicha taqsimot").size(18.0).strong().color(NEON));
-            ui.add_space(15.0);
+            ui.label(egui::RichText::new("Kategoriya taqsimoti").size(13.0).strong().color(NEON));
+            ui.add_space(8.0);
             
             let categories = [
-                ("💬 Matn/PII (ism, passport, PINFL, karta, INN, sana)", text, PURPLE),
-                ("📞 Telefon raqamlari", phone, BLUE),
-                ("✉  Email manzillari", email, CYAN),
+                ("💬 Matn/PII", text, PURPLE),
+                ("📞 Telefon", phone, BLUE),
+                ("✉  Email", email, CYAN),
                 ("👤 Rasm/Yuz", image, ORANGE),
             ];
             
             for (label, count, color) in categories {
                 ui.horizontal(|ui| {
-                    let (r, _) = ui.allocate_exact_size(egui::Vec2::new(10.0, 10.0), egui::Sense::hover());
-                    ui.painter().circle_filled(r.center(), 5.0, color);
-                    ui.label(egui::RichText::new(label).size(15.0));
+                    let (r, _) = ui.allocate_exact_size(egui::Vec2::new(8.0, 8.0), egui::Sense::hover());
+                    ui.painter().circle_filled(r.center(), 4.0, color);
+                    ui.label(egui::RichText::new(label).size(11.0));
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.label(egui::RichText::new(count.to_string()).size(18.0).strong().color(NEON));
+                        ui.label(egui::RichText::new(count.to_string()).size(13.0).strong().color(NEON));
                     });
                 });
-                // Simple bar
                 let max_width = ui.available_width();
                 let bar_width = if total_pii > 0 { (count as f32 / total_pii as f32) * max_width } else { 0.0 };
-                let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(max_width, 6.0), egui::Sense::hover());
-                ui.painter().rect_filled(rect, 3.0, egui::Color32::from_rgb(30, 35, 50));
-                let bar_rect = egui::Rect::from_min_size(rect.min, egui::Vec2::new(bar_width.max(0.0), 6.0));
-                ui.painter().rect_filled(bar_rect, 3.0, color);
-                ui.add_space(8.0);
+                let (rect, _) = ui.allocate_exact_size(egui::Vec2::new(max_width, 4.0), egui::Sense::hover());
+                ui.painter().rect_filled(rect, 2.0, egui::Color32::from_rgb(30, 35, 50));
+                let bar_rect = egui::Rect::from_min_size(rect.min, egui::Vec2::new(bar_width.max(0.0), 4.0));
+                ui.painter().rect_filled(bar_rect, 2.0, color);
+                ui.add_space(5.0);
             }
         });
+        }); // end ScrollArea
     }
 
     // ==================== FILTERLAR ====================
     fn page_filterlar(&mut self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("🔒 Filter Sozlamalari").size(32.0).strong().color(NEON));
-        ui.label(egui::RichText::new("Qaysi turdagi shaxsiy ma'lumotlar filtrlansin").size(16.0).color(DIM));
-        ui.add_space(25.0);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+        ui.label(egui::RichText::new("🔒 Filterlar").size(18.0).strong().color(NEON));
+        ui.label(egui::RichText::new("Qaysi ma'lumotlar filtrlansin").size(11.0).color(DIM));
+        ui.add_space(10.0);
 
         card_frame(PURPLE).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            ui.label(egui::RichText::new("PII Aniqlash Qoidalari").size(18.0).strong().color(NEON));
-            ui.add_space(10.0);
+            ui.label(egui::RichText::new("PII Qoidalari").size(13.0).strong().color(NEON));
+            ui.add_space(6.0);
             
-            ui.checkbox(&mut self.filter_phone, egui::RichText::new("📞 Telefon raqamlari (+998 XX XXX XX XX)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_email, egui::RichText::new("✉  Email manzillari (user@example.com)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_card, egui::RichText::new("💳 Karta raqamlari (8600 XXXX XXXX XXXX)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_passport, egui::RichText::new("🛂 Passport seriyasi (AB1234567)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_pinfl, egui::RichText::new("🔢 PINFL (14 raqamli identifikator)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_name, egui::RichText::new("👤 Ism-familiya (Bosh harfli so'zlar)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_inn, egui::RichText::new("🏢 INN (9 raqamli soliq raqami)").size(15.0));
-            ui.add_space(4.0);
-            ui.checkbox(&mut self.filter_date, egui::RichText::new("📅 Tug'ilgan sana (DD.MM.YYYY)").size(15.0));
+            ui.checkbox(&mut self.filter_phone, egui::RichText::new("📞 Telefon (+998..)").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_email, egui::RichText::new("✉  Email").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_card, egui::RichText::new("💳 Karta raqami").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_passport, egui::RichText::new("🛂 Passport").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_pinfl, egui::RichText::new("🔢 PINFL").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_name, egui::RichText::new("👤 Ism-familiya").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_inn, egui::RichText::new("🏢 INN").size(11.0));
+            ui.add_space(2.0);
+            ui.checkbox(&mut self.filter_date, egui::RichText::new("📅 Tug'ilgan sana").size(11.0));
         });
 
-        ui.add_space(25.0);
+        ui.add_space(10.0);
 
-        // Test maydoni
         card_frame(BLUE).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            ui.label(egui::RichText::new("🧪 Filterni sinab ko'ring").size(18.0).strong().color(NEON));
-            ui.add_space(10.0);
-            ui.label(egui::RichText::new("Matn kiriting va filtr qanday ishlashini ko'ring:").size(14.0).color(DIM));
-            ui.add_space(8.0);
+            ui.label(egui::RichText::new("🧪 Filterni sinab ko'ring").size(13.0).strong().color(NEON));
+            ui.add_space(6.0);
+            ui.label(egui::RichText::new("Matn kiriting:").size(10.0).color(DIM));
+            ui.add_space(4.0);
             
             ui.add(egui::TextEdit::multiline(&mut self.test_input)
-                .hint_text("Masalan: Mening ismim Anvar Karimov, tel: +998901234567, email: anvar@mail.com")
+                .hint_text("Masalan: tel: +998901234567")
                 .desired_width(f32::INFINITY)
-                .desired_rows(3)
+                .desired_rows(2)
                 .font(egui::TextStyle::Monospace));
             
-            ui.add_space(8.0);
-            if ui.button(egui::RichText::new("  🔍 Filtrlash  ").size(16.0)).clicked() {
+            ui.add_space(5.0);
+            if ui.button(egui::RichText::new(" 🔍 Filtrlash ").size(12.0)).clicked() {
                 let detector = crate::detector::Detector::new();
                 let mapping = crate::filter::MappingStore::new();
                 let filter = crate::filter::MultiFilter::new(mapping, "label".to_string());
                 let detections = detector.detect_text(&self.test_input, &[]);
                 if detections.is_empty() {
-                    self.test_output = "✅ Hech qanday shaxsiy ma'lumot topilmadi.".to_string();
+                    self.test_output = "✅ PII topilmadi.".to_string();
                 } else {
                     let masked = filter.mask_text(&self.test_input, &detections);
-                    self.test_output = format!("⚠ {} ta PII topildi!\n\nMaskalangan natija:\n{}", detections.len(), masked);
+                    self.test_output = format!("⚠ {} ta PII!\n{}", detections.len(), masked);
                 }
             }
             
             if !self.test_output.is_empty() {
-                ui.add_space(10.0);
+                ui.add_space(6.0);
                 ui.separator();
-                ui.add_space(5.0);
-                ui.label(egui::RichText::new(&self.test_output).size(14.0).color(
+                ui.add_space(3.0);
+                ui.label(egui::RichText::new(&self.test_output).size(11.0).color(
                     if self.test_output.starts_with("✅") { GREEN } else { ORANGE }
                 ));
             }
         });
+        }); // end ScrollArea
     }
 
     // ==================== SOZLAMALAR ====================
     fn page_sozlamalar(&mut self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("⚙ Dastur Sozlamalari").size(32.0).strong().color(NEON));
-        ui.label(egui::RichText::new("Proxy va tarmoq parametrlarini boshqarish").size(16.0).color(DIM));
-        ui.add_space(25.0);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+        ui.label(egui::RichText::new("⚙ Sozlamalar").size(18.0).strong().color(NEON));
+        ui.label(egui::RichText::new("Proxy va tarmoq parametrlari").size(11.0).color(DIM));
+        ui.add_space(10.0);
 
         card_frame(PURPLE).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            ui.label(egui::RichText::new("Proxy Server").size(18.0).strong().color(NEON));
-            ui.add_space(10.0);
+            ui.label(egui::RichText::new("Proxy Server").size(13.0).strong().color(NEON));
+            ui.add_space(6.0);
             
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("Port:").size(15.0));
-                ui.add(egui::TextEdit::singleline(&mut self.proxy_port).desired_width(80.0));
-                ui.label(egui::RichText::new(format!("(hozir: 127.0.0.1:{})", self.proxy_port)).size(13.0).color(DIM));
+                ui.label(egui::RichText::new("Port:").size(11.0));
+                ui.add(egui::TextEdit::singleline(&mut self.proxy_port).desired_width(60.0));
             });
             
-            ui.add_space(10.0);
+            ui.add_space(6.0);
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("Maskalash usuli:").size(15.0));
+                ui.label(egui::RichText::new("Maska:").size(11.0));
                 egui::ComboBox::from_id_salt("mask_combo")
                     .selected_text(&self.mask_style)
                     .show_ui(ui, |ui| {
-                        ui.selectable_value(&mut self.mask_style, "label".to_string(), "Label ([TELEFON], [EMAIL])");
-                        ui.selectable_value(&mut self.mask_style, "partial".to_string(), "Qisman (+9****)");
-                        ui.selectable_value(&mut self.mask_style, "pseudonym".to_string(), "Psevdonim (ID-a1b2c3)");
+                        ui.selectable_value(&mut self.mask_style, "label".to_string(), "Label");
+                        ui.selectable_value(&mut self.mask_style, "partial".to_string(), "Qisman");
+                        ui.selectable_value(&mut self.mask_style, "pseudonym".to_string(), "Psevdonim");
                     });
             });
         });
 
-        ui.add_space(20.0);
+        ui.add_space(10.0);
         
         card_frame(BLUE).show(ui, |ui| {
             ui.set_width(ui.available_width());
-            ui.label(egui::RichText::new("Avtomatik tizim sozlamalari").size(18.0).strong().color(NEON));
-            ui.add_space(10.0);
-            ui.label(egui::RichText::new("Dastur Windows proksi parametrlarini PAC skripti yordamida avtomatik boshqaradi.").size(14.0).color(DIM));
-            ui.add_space(8.0);
+            ui.label(egui::RichText::new("Tizim sozlamalari").size(13.0).strong().color(NEON));
+            ui.add_space(6.0);
+            ui.label(egui::RichText::new("PAC skripti yordamida avtomatik boshqariladi.").size(10.0).color(DIM));
+            ui.add_space(5.0);
             
             card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
-                ui.label(egui::RichText::new(format!("PAC Manzil: http://127.0.0.1:{}/pac", self.proxy_port)).size(15.0).color(GREEN).monospace());
-                ui.label(egui::RichText::new("Holati: Avtomatik sozlangan").size(15.0).color(GREEN));
+                ui.label(egui::RichText::new(format!("PAC: 127.0.0.1:{}/pac", self.proxy_port)).size(10.0).color(GREEN).monospace());
+                ui.label(egui::RichText::new("Holati: Sozlangan").size(10.0).color(GREEN));
             });
-
-            ui.add_space(8.0);
-            ui.label(egui::RichText::new("Windows sozlamalarining 'Proxy' bo'limida natijani ko'rishingiz mumkin.").size(13.0).color(DIM));
         });
+        }); // end ScrollArea
     }
 
     // ==================== LOGS ====================
     fn page_logs(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("📋 Faoliyat Tarixi (Logs)").size(32.0).strong().color(NEON));
-        ui.label(egui::RichText::new("Ushlab qolingan barcha shaxsiy ma'lumotlar ro'yxati").size(16.0).color(DIM));
-        ui.add_space(25.0);
+        ui.label(egui::RichText::new("📋 Logs").size(18.0).strong().color(NEON));
+        ui.label(egui::RichText::new("Faoliyat tarixi").size(11.0).color(DIM));
+        ui.add_space(10.0);
 
         let logs = self.state.logs.read();
         
         if logs.is_empty() {
             card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
                 ui.set_width(ui.available_width());
-                ui.set_min_height(200.0);
+                ui.set_min_height(120.0);
                 ui.vertical_centered(|ui| {
-                    ui.add_space(50.0);
-                    ui.label(egui::RichText::new("📭").size(48.0));
-                    ui.add_space(15.0);
-                    ui.label(egui::RichText::new("Hali hech qanday faoliyat yo'q").size(18.0).color(DIM));
-                    ui.add_space(10.0);
-                    ui.label(egui::RichText::new("Proxy orqali so'rov yuboring va natijalar shu yerda ko'rinadi").size(14.0).color(egui::Color32::from_rgb(90, 100, 120)));
+                    ui.add_space(25.0);
+                    ui.label(egui::RichText::new("📭").size(32.0));
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("Faoliyat yo'q").size(13.0).color(DIM));
+                    ui.add_space(5.0);
+                    ui.label(egui::RichText::new("So'rov yuboring").size(10.0).color(egui::Color32::from_rgb(90, 100, 120)));
                 });
             });
         } else {
             card_frame(egui::Color32::from_rgb(40, 50, 80)).show(ui, |ui| {
                 ui.set_width(ui.available_width());
-                // Table header
                 ui.horizontal(|ui| {
-                    ui.label(egui::RichText::new("Vaqt").size(13.0).strong().color(DIM));
-                    ui.add_space(30.0);
-                    ui.label(egui::RichText::new("Kategoriya").size(13.0).strong().color(DIM));
-                    ui.add_space(30.0);
-                    ui.label(egui::RichText::new("Asl qiymat").size(13.0).strong().color(DIM));
-                    ui.add_space(30.0);
-                    ui.label(egui::RichText::new("Niqob").size(13.0).strong().color(DIM));
+                    ui.label(egui::RichText::new("Vaqt").size(10.0).strong().color(DIM));
+                    ui.add_space(10.0);
+                    ui.label(egui::RichText::new("Tur").size(10.0).strong().color(DIM));
+                    ui.add_space(10.0);
+                    ui.label(egui::RichText::new("Asl").size(10.0).strong().color(DIM));
+                    ui.add_space(10.0);
+                    ui.label(egui::RichText::new("Niqob").size(10.0).strong().color(DIM));
                 });
                 ui.separator();
                 
-                egui::ScrollArea::vertical().max_height(400.0).show(ui, |ui| {
+                egui::ScrollArea::vertical().max_height(500.0).show(ui, |ui| {
                     for entry in logs.iter().rev() {
                         ui.horizontal(|ui| {
-                            ui.label(egui::RichText::new(&entry.timestamp).size(13.0).color(DIM).monospace());
-                            ui.add_space(15.0);
+                            ui.label(egui::RichText::new(&entry.timestamp).size(9.0).color(DIM).monospace());
+                            ui.add_space(4.0);
                             let cat_color = match entry.category.as_str() {
                                 "Telefon" => BLUE,
                                 "Email" => CYAN,
                                 _ => PURPLE,
                             };
-                            ui.label(egui::RichText::new(&entry.category).size(13.0).color(cat_color));
-                            ui.add_space(15.0);
-                            ui.label(egui::RichText::new(&entry.original).size(13.0).color(RED).monospace());
-                            ui.add_space(15.0);
-                            ui.label(egui::RichText::new(&entry.masked).size(13.0).color(GREEN).monospace());
+                            ui.label(egui::RichText::new(&entry.category).size(9.0).color(cat_color));
+                            ui.add_space(4.0);
+                            ui.label(egui::RichText::new(&entry.original).size(9.0).color(RED).monospace());
+                            ui.add_space(4.0);
+                            ui.label(egui::RichText::new(&entry.masked).size(9.0).color(GREEN).monospace());
                         });
                         ui.separator();
                     }
@@ -805,50 +778,50 @@ impl AIFilterApp {
 
     // ==================== YORDAM ====================
     fn page_yordam(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("❓ Yordam va FAQ").size(32.0).strong().color(NEON));
-        ui.add_space(25.0);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+        ui.label(egui::RichText::new("❓ Yordam").size(18.0).strong().color(NEON));
+        ui.add_space(10.0);
 
         let faqs = [
             ("AI filter nima?",
-             "Bu dastur sizning brauzeringiz va AI xizmatlari (ChatGPT, Claude, Gemini) o'rtasida proksi vazifasini bajaradi. U shaxsiy ma'lumotlarni avtomatik aniqlaydi va maskalaydi."),
+             "Brauzer va AI xizmatlari orasida proksi. Shaxsiy ma'lumotlarni aniqlaydi va maskalaydi."),
             ("Qanday ishlaydi?",
-             "1. Dasturni ishga tushiring (u avtomat tarzda tizim proxy sini sozlaydi)\n2. AI xizmatlaridan odatdagidek foydalaning\n3. Dastur fon rejimida shaxsiy ma'lumotlarni avtomatik filtrlaydi"),
-            ("Qaysi ma'lumotlar filtrlanadi?",
-             "Telefon raqamlari, email manzillari, bank karta raqamlari, passport seriyalari, PINFL, INN, tug'ilgan sanalar va qora ro'yxatdagi so'zlar."),
-            ("Ma'lumotlarim saqlanadiimi?",
-             "Yo'q! Barcha qayta ishlash faqat kompyuteringizda (RAM da) amalga oshiriladi. Hech qanday ma'lumot tashqariga yuborilmaydi."),
+             "1. Dasturni ishga tushiring\n2. AI xizmatlaridan foydalaning\n3. Dastur avtomatik filtrlaydi"),
+            ("Qaysi ma'lumotlar?",
+             "Telefon, email, karta, passport, PINFL, INN, tug'ilgan sana."),
+            ("Saqlanadimi?",
+             "Yo'q! Faqat RAM da. Hech narsa tashqariga yuborilmaydi."),
         ];
 
         for (question, answer) in faqs {
             card_frame(egui::Color32::from_rgb(30, 40, 70)).show(ui, |ui| {
                 ui.set_width(ui.available_width());
-                ui.label(egui::RichText::new(question).size(16.0).strong().color(BLUE));
-                ui.add_space(5.0);
-                ui.label(egui::RichText::new(answer).size(14.0).color(egui::Color32::from_rgb(180, 190, 220)));
+                ui.label(egui::RichText::new(question).size(12.0).strong().color(BLUE));
+                ui.add_space(3.0);
+                ui.label(egui::RichText::new(answer).size(10.0).color(egui::Color32::from_rgb(180, 190, 220)));
             });
-            ui.add_space(10.0);
+            ui.add_space(5.0);
         }
+        }); // end ScrollArea
     }
 
     // ==================== HAQIDA ====================
     fn page_haqida(&self, ui: &mut egui::Ui) {
-        ui.label(egui::RichText::new("ℹ AI filter Haqida").size(32.0).strong().color(NEON));
-        ui.add_space(25.0);
+        ui.label(egui::RichText::new("ℹ Haqida").size(18.0).strong().color(NEON));
+        ui.add_space(10.0);
 
         card_frame(PURPLE).show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.vertical_centered(|ui| {
-                ui.add_space(15.0);
-                ui.label(egui::RichText::new("🛡").size(64.0));
                 ui.add_space(10.0);
-                ui.label(egui::RichText::new("AI filter").size(28.0).strong().color(NEON));
-                ui.label(egui::RichText::new("v1.0.0").size(16.0).color(DIM));
-                ui.add_space(20.0);
-                ui.label(egui::RichText::new("Shaxsiy ma'lumotlarni AI xizmatlaridan himoya qilish uchun\nlokal proksi dasturi").size(16.0).color(egui::Color32::from_rgb(180, 190, 220)));
-                ui.add_space(15.0);
+                ui.label(egui::RichText::new("🛡").size(40.0));
+                ui.add_space(6.0);
+                ui.label(egui::RichText::new("PrivacyProxy").size(20.0).strong().color(NEON));
+                ui.label(egui::RichText::new("v1.1.0").size(12.0).color(DIM));
+                ui.add_space(10.0);
+                ui.label(egui::RichText::new("Shaxsiy ma'lumotlarni\nAI xizmatlaridan himoya\nqilish uchun lokal proksi").size(11.0).color(egui::Color32::from_rgb(180, 190, 220)));
+                ui.add_space(10.0);
             });
         });
-        
-
     }
 }
