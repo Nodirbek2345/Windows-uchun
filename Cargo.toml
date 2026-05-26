@@ -1,6 +1,6 @@
 [package]
 name = "ai-filter"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 description = "AI filter — AI xizmatlarga yuboriladigan shaxsiy ma'lumotlarni filterlash"
 

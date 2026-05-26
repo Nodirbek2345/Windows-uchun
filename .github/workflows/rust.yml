@@ -33,7 +33,7 @@ jobs:
 
     - name: Zip for Release
       if: startsWith(github.ref, 'refs/tags/')
-      run: Compress-Archive -Path target/release/ai-filter.exe -DestinationPath ai-filter-x86_64-pc-windows-msvc.zip
+      run: Compress-Archive -Path target/release/ai-filter.exe, installer/install.bat, installer/uninstall.bat -DestinationPath ai-filter-x86_64-pc-windows-msvc.zip
 
     - name: GitHub Release
       uses: softprops/action-gh-release@v2
