@@ -258,7 +258,7 @@ impl eframe::App for AIFilterApp {
                         ui.label(egui::RichText::new("Online").size(9.0).color(NEON));
                     });
                     ui.add_space(4.0);
-                    ui.label(egui::RichText::new("v1.2.2").size(9.0).color(DIM));
+                    ui.label(egui::RichText::new("v1.2.3").size(9.0).color(DIM));
                 });
             });
 

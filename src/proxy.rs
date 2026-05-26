@@ -416,7 +416,7 @@ async fn handle_connection(
         } else {
             let info_response = format!(
                 "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n\
-                <html><body><h1>🛡️ AI filter v1.2.2</h1><p>Proksi faol ishlamoqda!</p></body></html>"
+                <html><body><h1>🛡️ AI filter v1.2.3</h1><p>Proksi faol ishlamoqda!</p></body></html>"
             );
             client_stream.write_all(info_response.as_bytes()).await?;
         }
