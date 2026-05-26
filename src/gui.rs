@@ -258,7 +258,7 @@ impl eframe::App for AIFilterApp {
                         ui.label(egui::RichText::new("Online").size(9.0).color(NEON));
                     });
                     ui.add_space(4.0);
-                    ui.label(egui::RichText::new("v1.2.1").size(9.0).color(DIM));
+                    ui.label(egui::RichText::new("v1.2.2").size(9.0).color(DIM));
                 });
             });
 
@@ -334,11 +334,11 @@ impl AIFilterApp {
             ("Perplexity", "perplexity.ai", "P", "Perplexity AI", GREEN, egui::Color32::from_rgb(50, 200, 200)),
         ];
 
-        let target_sites = self.state.config.read().target_sites.clone();
-
         for (name, domain, initial, company, border_col, dot_col) in services {
-            let is_monitored = target_sites.iter().any(|s| domain.contains(s) || s.contains(domain));
+            // Endi "is_monitored" ni AppState dagi `platform_enabled` xaritadan olamiz:
+            let is_monitored = self.state.is_platform_enabled(name);
             let border = if is_monitored { border_col } else { egui::Color32::from_rgb(30, 35, 50) };
+            
             card_frame(border).show(ui, |ui| {
                 ui.set_width(ui.available_width());
                 ui.horizontal(|ui| {
@@ -352,24 +352,26 @@ impl AIFilterApp {
                         ui.label(egui::RichText::new(name).size(13.0).strong().color(NEON));
                         ui.label(egui::RichText::new(company).size(10.0).color(DIM));
                     });
+                    
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         if is_monitored {
-                            egui::Frame::none()
+                            let btn = egui::Button::new(egui::RichText::new("■ FAOL").size(10.0).color(GREEN))
                                 .fill(egui::Color32::from_rgb(20, 50, 30))
-                                .rounding(8.0)
-                                .inner_margin(egui::Margin::symmetric(6.0, 3.0))
                                 .stroke(egui::Stroke::new(1.0, GREEN))
-                                .show(ui, |ui| {
-                                    ui.label(egui::RichText::new("● FAOL").size(9.0).color(GREEN));
-                                });
+                                .rounding(6.0);
+                            
+                            if ui.add(btn).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+                                self.state.toggle_platform(name, false);
+                            }
                         } else {
-                            egui::Frame::none()
+                            let btn = egui::Button::new(egui::RichText::new("○ Nofaol").size(10.0).color(DIM))
                                 .fill(egui::Color32::from_rgb(30, 30, 35))
-                                .rounding(8.0)
-                                .inner_margin(egui::Margin::symmetric(6.0, 3.0))
-                                .show(ui, |ui| {
-                                    ui.label(egui::RichText::new("○ Nofaol").size(9.0).color(DIM));
-                                });
+                                .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(50, 50, 60)))
+                                .rounding(6.0);
+                            
+                            if ui.add(btn).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+                                self.state.toggle_platform(name, true);
+                            }
                         }
                     });
                 });

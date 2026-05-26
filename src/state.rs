@@ -1,6 +1,7 @@
 use crate::config::Config;
 use parking_lot::RwLock;
 use std::sync::atomic::{AtomicUsize, AtomicBool, Ordering};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct LogEntry {
@@ -9,6 +10,16 @@ pub struct LogEntry {
     pub original: String,
     pub masked: String,
 }
+
+/// AI platformalar va ularning hostlari
+pub const PLATFORM_HOSTS: &[(&str, &[&str])] = &[
+    ("ChatGPT",    &["chat.openai.com", "api.openai.com", "chatgpt.com"]),
+    ("Claude",     &["claude.ai", "api.anthropic.com"]),
+    ("Gemini",     &["gemini.google.com", "generativelanguage.googleapis.com"]),
+    ("Copilot",    &["copilot.microsoft.com", "sydney.bing.com"]),
+    ("Grok",       &["grok.x.ai", "api.x.ai"]),
+    ("Perplexity", &["perplexity.ai", "api.perplexity.ai"]),
+];
 
 pub struct AppState {
     pub config: RwLock<Config>,
@@ -20,6 +31,9 @@ pub struct AppState {
     pub stats_email_filtered: AtomicUsize,
     pub stats_image_filtered: AtomicUsize,
     pub stats_total_requests: AtomicUsize,
+    
+    // Per-platform toggle state
+    pub platform_enabled: RwLock<HashMap<String, bool>>,
     
     // Logs
     pub logs: RwLock<Vec<LogEntry>>,
@@ -47,6 +61,11 @@ const INTERNET_OPTION_REFRESH: u32 = 37;
 
 impl AppState {
     pub fn new(config: Config) -> Self {
+        let mut plat_map = HashMap::new();
+        for (name, _) in PLATFORM_HOSTS {
+            plat_map.insert(name.to_string(), true);
+        }
+
         let state = Self {
             config: RwLock::new(config),
             is_active: AtomicBool::new(true),
@@ -55,6 +74,7 @@ impl AppState {
             stats_email_filtered: AtomicUsize::new(0),
             stats_image_filtered: AtomicUsize::new(0),
             stats_total_requests: AtomicUsize::new(0),
+            platform_enabled: RwLock::new(plat_map),
             logs: RwLock::new(Vec::new()),
             update_available: AtomicBool::new(false),
         };
@@ -69,6 +89,33 @@ impl AppState {
 
     pub fn is_active(&self) -> bool {
         self.is_active.load(Ordering::Relaxed)
+    }
+
+    /// Platforma filtrini yoqish/o'chirish
+    pub fn toggle_platform(&self, name: &str, enabled: bool) {
+        self.platform_enabled.write().insert(name.to_string(), enabled);
+    }
+
+    /// Platforma filtri yoqilganmi?
+    pub fn is_platform_enabled(&self, name: &str) -> bool {
+        *self.platform_enabled.read().get(name).unwrap_or(&false)
+    }
+
+    /// Berilgan host qaysi platformaga tegishli? Filtr yoqilganmi?
+    /// Agar yoqilgan bo'lsa platforma nomini qaytaradi, aks holda None
+    pub fn platform_for_host(&self, host: &str) -> Option<String> {
+        if !self.is_active() {
+            return None;
+        }
+        let map = self.platform_enabled.read();
+        for (name, hosts) in PLATFORM_HOSTS {
+            if hosts.iter().any(|h| host.contains(h)) {
+                if *map.get(*name).unwrap_or(&false) {
+                    return Some(name.to_string());
+                }
+            }
+        }
+        None
     }
 
     pub fn sync_system_proxy(&self, enable: bool) {
