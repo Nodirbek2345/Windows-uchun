@@ -274,6 +274,14 @@ impl AIFilterApp {
             .build()
             .ok();
 
+        let ctx_clone = cc.egui_ctx.clone();
+        std::thread::spawn(move || {
+            loop {
+                std::thread::sleep(std::time::Duration::from_millis(200));
+                ctx_clone.request_repaint();
+            }
+        });
+
  Self {
  state,
  selected_tab: "Bosh sahifa".to_string(),
@@ -646,18 +654,27 @@ impl AIFilterApp {
  });
  
  ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
- if is_active_now {
- let btn = egui::Button::new(egui::RichText::new(self.lang.tr(" FAOL")).size(10.0).color(t.bg_card))
- .fill(t.accent_green)
- .rounding(6.0);
- ui.add(btn);
- } else {
- let btn = egui::Button::new(egui::RichText::new(self.lang.tr("Kutmoqda...")).size(10.0).color(t.text_dim))
- .fill(t.bg_app)
- .stroke(egui::Stroke::new(1.0, t.border))
- .rounding(6.0);
- ui.add(btn);
- }
+            // Tizim holatini ko'rsatish
+            if is_active_now {
+                let btn = egui::Button::new(egui::RichText::new(self.lang.tr(" FAOL")).size(10.0).color(t.bg_card))
+                    .fill(t.accent_green)
+                    .rounding(6.0);
+                ui.add(btn);
+            } else {
+                let btn = egui::Button::new(egui::RichText::new(self.lang.tr("Kutmoqda...")).size(10.0).color(t.text_dim))
+                    .fill(t.bg_app)
+                    .stroke(egui::Stroke::new(1.0, t.border))
+                    .rounding(6.0);
+                ui.add(btn);
+            }
+            
+            ui.add_space(8.0);
+            
+            // Yoqish/O'chirish tugmasi
+            let mut enabled = self.state.is_platform_enabled(name);
+            if ui.checkbox(&mut enabled, "").changed() {
+                self.state.toggle_platform(name, enabled);
+            }
  });
  });
  });

@@ -70,10 +70,9 @@ impl Detector {
         self.apply_regex(&REGEX_INN, text, DetectionType::Inn, "inn", &mut detections);
         self.apply_regex(&REGEX_DATE, text, DetectionType::Date, "date", &mut detections);
 
-        // Very naive Name regex - typically needs NLP or exact dictionary
-        // Just matching 2 capitalized words for basic testing
-        let regex_name = Regex::new(r"\b([A-Z][a-z]+ [A-Z][a-z]+)\b").unwrap();
-        self.apply_regex(&regex_name, text, DetectionType::Name, "capitalized_words", &mut detections);
+        // Contextual name matching (e.g. "ismim nodir", "mening ismim Nodir", "my name is John")
+        let regex_context_name = Regex::new(r"(?i)\b(?:ismim|mening ismim|my name is|i am|men)\s+([a-zA-Z]+)\b").unwrap();
+        self.apply_regex(&regex_context_name, text, DetectionType::Name, "contextual_name", &mut detections);
 
         // Blacklist matching
         for word in blacklist {
