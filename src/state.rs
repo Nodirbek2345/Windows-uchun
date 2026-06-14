@@ -40,6 +40,9 @@ pub struct AppState {
     
     // Updates
     pub update_available: AtomicBool,
+    
+    // Real-time tracking
+    pub active_platform: RwLock<Option<String>>,
 }
 
 use winreg::enums::*;
@@ -77,6 +80,7 @@ impl AppState {
             platform_enabled: RwLock::new(plat_map),
             logs: RwLock::new(Vec::new()),
             update_available: AtomicBool::new(false),
+            active_platform: RwLock::new(None),
         };
         state.sync_system_proxy(true);
         state
@@ -126,10 +130,15 @@ impl AppState {
         if let Ok(key) = hkcu.open_subkey_with_flags("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", KEY_SET_VALUE) {
             if enable {
                 let pac_url = format!("http://127.0.0.1:{}/pac", port);
+                let proxy_server = format!("127.0.0.1:{}", port);
                 let _ = key.set_value("AutoConfigURL", &pac_url);
-                let _ = key.set_value("ProxyEnable", &0u32);
+                let _ = key.set_value("ProxyServer", &proxy_server);
+                let _ = key.set_value("ProxyOverride", &"<local>;localhost;127.*;10.*;192.168.*");
+                let _ = key.set_value("ProxyEnable", &1u32);
             } else {
                 let _ = key.delete_value("AutoConfigURL");
+                let _ = key.delete_value("ProxyServer");
+                let _ = key.delete_value("ProxyOverride");
                 let _ = key.set_value("ProxyEnable", &0u32);
             }
             

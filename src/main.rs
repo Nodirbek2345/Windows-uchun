@@ -18,40 +18,8 @@ use detector::Detector;
 use filter::MappingStore;
 use proxy::ProxyServer;
 use eframe::egui;
-use tray_icon::{
-    TrayIconBuilder,
-    menu::{Menu, MenuItem},
-    Icon,
-};
 
-/// 32x32 shield icon RGBA — programmatik yaratish (fayl kerak emas)
-fn create_tray_icon() -> Icon {
-    let size: u32 = 32;
-    let mut rgba = vec![0u8; (size * size * 4) as usize];
 
-    for y in 0..size {
-        for x in 0..size {
-            let idx = ((y * size + x) * 4) as usize;
-            let cx = x as f32 - 16.0;
-            let cy = y as f32 - 16.0;
-            let dist = (cx * cx + cy * cy).sqrt();
-
-            // Shield shape: circle
-            if dist < 14.0 {
-                // Purple gradient
-                let r = 100 + ((dist / 14.0) * 30.0) as u8;
-                let g = 60 + ((1.0 - dist / 14.0) * 40.0) as u8;
-                let b = 220;
-                rgba[idx] = r;
-                rgba[idx + 1] = g;
-                rgba[idx + 2] = b;
-                rgba[idx + 3] = 255;
-            }
-        }
-    }
-
-    Icon::from_rgba(rgba, size, size).expect("Tray icon yaratib bo'lmadi")
-}
 
 #[tokio::main]
 async fn main() -> eframe::Result<()> {
@@ -60,7 +28,7 @@ async fn main() -> eframe::Result<()> {
     println!("Starting AI filter...");
 
     // 1. Load config
-    let config = Config::load("config.yaml").unwrap_or_else(|_| {
+    let mut config = Config::load("config.yaml").unwrap_or_else(|_| {
         println!("config.yaml topilmadi, standart sozlamalar ishlatilmoqda.");
         Config {
             proxy: config::ProxyConfig { port: 8081, host: "127.0.0.1".into(), ssl_insecure: false },
@@ -93,6 +61,13 @@ async fn main() -> eframe::Result<()> {
             ui: config::UiConfig { language: "uz".into(), theme: "dark".into(), start_minimized: false, autostart: false }
         }
     });
+
+    // Har doim bo'sh port topib ishlatish (avtomatlashtirish)
+    if let Ok(listener) = std::net::TcpListener::bind("127.0.0.1:0") {
+        if let Ok(addr) = listener.local_addr() {
+            config.proxy.port = addr.port();
+        }
+    }
 
     let start_minimized = config.ui.start_minimized;
 
@@ -131,26 +106,13 @@ async fn main() -> eframe::Result<()> {
         }
     });
 
-    // 5. Tray icon context menu
-    let menu = Menu::new();
-    let item_show = MenuItem::new("🔓 Ko'rsatish", true, None);
-    let item_quit = MenuItem::new("❌ Chiqish", true, None);
-    let _ = menu.append(&item_show);
-    let _ = menu.append(&item_quit);
-    
-    let show_id = item_show.id().clone();
-    let quit_id = item_quit.id().clone();
 
-    // Tray icon reference (Windows/macOS: must be on main thread after event loop starts)
-    let tray_icon_holder: Rc<RefCell<Option<tray_icon::TrayIcon>>> = Rc::new(RefCell::new(None));
-    let tray_c = tray_icon_holder.clone();
-
-    let icon = create_tray_icon();
 
     // 6. Start GUI
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([420.0, 820.0])
+            .with_inner_size([560.0, 760.0])
+            .with_resizable(false)
             .with_title("AI filter"),
         ..Default::default()
     };
@@ -161,21 +123,9 @@ async fn main() -> eframe::Result<()> {
         "AI filter",
         options,
         Box::new(move |cc| {
-            // Create tray icon inside the event loop context (Windows requirement)
-            let tray = TrayIconBuilder::new()
-                .with_menu(Box::new(menu))
-                .with_tooltip("AI filter — fonda ishlamoqda")
-                .with_icon(icon)
-                .build()
-                .expect("Tray icon yaratib bo'lmadi");
-            
-            tray_c.borrow_mut().replace(tray);
-            
             Ok(Box::new(gui::AIFilterApp::new(
                 cc,
                 state.clone(),
-                show_id.clone(),
-                quit_id.clone(),
                 start_minimized,
             )))
         }),

@@ -55,17 +55,32 @@ impl MitmManager {
         // Har doim ishga tushganda Windows sertifikatlar omboriga qo'shish (Brauzer xato bermasligi uchun)
         #[cfg(target_os = "windows")]
         {
-            if let Ok(abs_path) = fs::canonicalize(&cert_path) {
-                let path_str = abs_path.to_string_lossy().replace("\\\\?\\", "");
-                println!("🔧 Sertifikat tizimga o'rnatilmoqda...");
-                let output = std::process::Command::new("certutil")
-                    .args(&["-user", "-addstore", "-f", "Root", &path_str])
-                    .output();
-                match output {
-                    Ok(o) if o.status.success() => println!("✅ Sertifikat Windows tizimiga muvaffaqiyatli o'rnatildi!"),
-                    Ok(o) => println!("⚠ Sertifikat o'rnatish muvaffaqiyatsiz bo'ldi. (Antivirus to'sgan bo'lishi mumkin)\nQo'lda ushbu faylni o'rnating: {}", path_str),
-                    Err(_) => println!("⚠ certutil topilmadi. Sertifikatni qo'lda o'rnating: {}", path_str),
+            let check = std::process::Command::new("certutil")
+                .args(&["-user", "-store", "Root", "AI filter Root CA"])
+                .output();
+            
+            let mut needs_install = true;
+            if let Ok(o) = check {
+                if o.status.success() {
+                    needs_install = false;
                 }
+            }
+
+            if needs_install {
+                if let Ok(abs_path) = fs::canonicalize(&cert_path) {
+                    let path_str = abs_path.to_string_lossy().replace("\\\\?\\", "");
+                    println!("🔧 Sertifikat tizimga o'rnatilmoqda...");
+                    let output = std::process::Command::new("certutil")
+                        .args(&["-user", "-addstore", "-f", "Root", &path_str])
+                        .output();
+                    match output {
+                        Ok(o) if o.status.success() => println!("✅ Sertifikat Windows tizimiga muvaffaqiyatli o'rnatildi!"),
+                        Ok(o) => println!("⚠ Sertifikat o'rnatish muvaffaqiyatsiz bo'ldi. (Antivirus to'sgan bo'lishi mumkin)\nQo'lda ushbu faylni o'rnating: {}", path_str),
+                        Err(_) => println!("⚠ certutil topilmadi. Sertifikatni qo'lda o'rnating: {}", path_str),
+                    }
+                }
+            } else {
+                println!("✅ Root CA sertifikati tizimda allaqachon mavjud, o'rnatish shart emas.");
             }
         }
 

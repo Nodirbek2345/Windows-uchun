@@ -28,11 +28,11 @@ impl ProxyServer {
         // TLS Client Config for upstream
         let mut root_store = rustls::RootCertStore::empty();
         root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
-        let client_config = Arc::new(
-            rustls::ClientConfig::builder()
-                .with_root_certificates(root_store)
-                .with_no_client_auth()
-        );
+        let mut client_config = rustls::ClientConfig::builder()
+            .with_root_certificates(root_store)
+            .with_no_client_auth();
+        client_config.alpn_protocols = vec![b"http/1.1".to_vec()];
+        let client_config = Arc::new(client_config);
 
         Self {
             port,
@@ -81,80 +81,55 @@ fn filter_http_body(
     mapping: &Arc<MappingStore>,
     domain: &str,
 ) -> Vec<u8> {
-    if !state.is_active() {
-        return payload.to_vec();
-    }
-
-    // Bu domen uchun platforma yoqilganmi?
+    if !state.is_active() { return payload.to_vec(); }
     let platform = match state.platform_for_host(domain) {
         Some(p) => p,
         None => return payload.to_vec(),
     };
 
     let text = String::from_utf8_lossy(payload).to_string();
-
-    // HTTP so'rovda header va body ni ajratish
     let (headers_part, body_part) = if let Some(idx) = text.find("\r\n\r\n") {
         (&text[..idx + 4], &text[idx + 4..])
     } else {
-        return payload.to_vec(); // body topilmadi
+        ("", text.as_str())
     };
 
-    // Faqat content-type: application/json bo'lsa filterlash
-    let ct_lower = headers_part.to_lowercase();
-    let is_json = ct_lower.contains("application/json");
-    let is_text = ct_lower.contains("text/");
-    let is_form = ct_lower.contains("application/x-www-form-urlencoded");
-
-    if !is_json && !is_text && !is_form {
-        return payload.to_vec(); // binary, rasm, kabi — tegmaydi
-    }
-
-    if body_part.trim().is_empty() {
-        return payload.to_vec();
-    }
-
-    // BODY ni filterlash
     let filter = MultiFilter::new(mapping.clone(), "label".to_string());
     let detections = detector.detect_text(body_part, &[]);
-
-    if detections.is_empty() {
-        return payload.to_vec();
-    }
-
-    let masked_body = filter.mask_text(body_part, &detections);
-
-    // Statistikani yangilash
-    for det in &detections {
-        match det.dtype {
-            DetectionType::Phone => {
-                state.stats_phone_filtered.fetch_add(1, Ordering::Relaxed);
-                state.add_log("Telefon", &det.original_value, det.dtype.as_label());
-            },
-            DetectionType::Email => {
-                state.stats_email_filtered.fetch_add(1, Ordering::Relaxed);
-                state.add_log("Email", &det.original_value, det.dtype.as_label());
-            },
-            _ => {
-                state.stats_text_filtered.fetch_add(1, Ordering::Relaxed);
-                state.add_log("Matn/PII", &det.original_value, det.dtype.as_label());
+    
+    let mut masked_body = body_part.to_string();
+    if !detections.is_empty() {
+        masked_body = filter.mask_text(body_part, &detections);
+        for det in &detections {
+            match det.dtype {
+                DetectionType::Phone => {
+                    state.stats_phone_filtered.fetch_add(1, Ordering::Relaxed);
+                    state.add_log("Telefon", &det.original_value, det.dtype.as_label());
+                },
+                DetectionType::Email => {
+                    state.stats_email_filtered.fetch_add(1, Ordering::Relaxed);
+                    state.add_log("Email", &det.original_value, det.dtype.as_label());
+                },
+                _ => {
+                    state.stats_text_filtered.fetch_add(1, Ordering::Relaxed);
+                    state.add_log("Matn/PII", &det.original_value, det.dtype.as_label());
+                }
             }
         }
+        println!("✅ [{}] {} ta shaxsiy ma'lumot {} trafikdan filterlandi!", platform, detections.len(), domain);
     }
 
-    println!(
-        "✅ [{}] {} ta shaxsiy ma'lumot {} trafikdan filterlandi!",
-        platform,
-        detections.len(),
-        domain
-    );
+    if headers_part.is_empty() {
+        if masked_body == body_part { return payload.to_vec(); }
+        return masked_body.into_bytes();
+    }
 
-    // Content-Length ni yangilash
     let mut new_headers = String::new();
     for line in headers_part.lines() {
-        if line.to_lowercase().starts_with("content-length:") {
-            new_headers.push_str(&format!("Content-Length: {}\r\n", masked_body.len()));
-        } else if !line.is_empty() {
+        if line.to_lowercase().starts_with("accept-encoding:") {
+            continue;
+        }
+        if !line.is_empty() {
             new_headers.push_str(line);
             new_headers.push_str("\r\n");
         }
@@ -172,39 +147,13 @@ fn restore_http_body(
     mapping: &Arc<MappingStore>,
 ) -> Vec<u8> {
     let text = String::from_utf8_lossy(payload).to_string();
-
-    let (headers_part, body_part) = if let Some(idx) = text.find("\r\n\r\n") {
-        (&text[..idx + 4], &text[idx + 4..])
-    } else {
-        return payload.to_vec();
-    };
-
-    if body_part.trim().is_empty() {
-        return payload.to_vec();
-    }
-
     let filter = MultiFilter::new(mapping.clone(), "label".to_string());
-    let restored_body = filter.restore_text(body_part);
-
-    if restored_body == body_part {
-        return payload.to_vec(); // hech narsa o'zgarmadi
+    let restored = filter.restore_text(&text);
+    if restored == text {
+        payload.to_vec()
+    } else {
+        restored.into_bytes()
     }
-
-    // Content-Length ni yangilash
-    let mut new_headers = String::new();
-    for line in headers_part.lines() {
-        if line.to_lowercase().starts_with("content-length:") {
-            new_headers.push_str(&format!("Content-Length: {}\r\n", restored_body.len()));
-        } else if !line.is_empty() {
-            new_headers.push_str(line);
-            new_headers.push_str("\r\n");
-        }
-    }
-    new_headers.push_str("\r\n");
-
-    let mut result = new_headers.into_bytes();
-    result.extend_from_slice(restored_body.as_bytes());
-    result
 }
 
 
@@ -241,7 +190,12 @@ async fn handle_connection(
         client_stream.write_all(response.as_bytes()).await?;
         
         // Bu domen uchun filtr yoqilganmi tekshirish
-        let should_mitm = state.platform_for_host(&domain).is_some();
+        let platform_opt = state.platform_for_host(&domain);
+        let should_mitm = platform_opt.is_some();
+        
+        if let Some(ref plat) = platform_opt {
+            state.active_platform.write().replace(plat.clone());
+        }
 
         if should_mitm {
             // 1. MITM TLS server yaratish
@@ -276,20 +230,7 @@ async fn handle_connection(
                                 }
                             }
 
-                            // RESPONSE ni o'qish va tiklash
-                            let mut resp_buf = vec![0u8; 65536];
-                            let resp_read = tokio::time::timeout(
-                                tokio::time::Duration::from_secs(30),
-                                secure_upstream.read(&mut resp_buf)
-                            ).await;
-
-                            if let Ok(Ok(rn)) = resp_read {
-                                if rn > 0 {
-                                    // TIKLASH: javobdagi tokenlarni asl qiymatga qaytarish
-                                    let restored = restore_http_body(&resp_buf[..rn], &mapping);
-                                    secure_client.write_all(&restored).await?;
-                                }
-                            }
+                            // Javobni o'qish s2c loop ichida amalga oshiriladi (streaming)
 
                             // Keyingi so'rovlarni ham filterlash (bidirectional)
                             let state_c2s = state.clone();

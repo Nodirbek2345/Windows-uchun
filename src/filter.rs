@@ -70,16 +70,21 @@ impl MultiFilter {
     }
 
     fn generate_token(&self, det: &Detection) -> String {
-        match self.mask_style.as_str() {
-            "partial" => format!("{}***", &det.original_value.chars().take(2).collect::<String>()),
-            "pseudonym" => format!("ID-{}", Uuid::new_v4().to_string().chars().take(8).collect::<String>()),
-            _ => {
-                // Default is label
-                // E.g [ISM_1a2b] to make it unique for restoration
-                let short_uuid: String = Uuid::new_v4().to_string().chars().take(4).collect();
-                let label = det.dtype.as_label().trim_matches(&['[', ']'][..]);
-                format!("[{}_{}]", label, short_uuid)
+        let orig_len = det.original_value.len();
+        let short_uuid: String = Uuid::new_v4().to_string().chars().take(4).collect();
+        let label = det.dtype.as_label().trim_matches(&['[', ']'][..]);
+        let mut token = format!("[{}_{}]", label, short_uuid);
+
+        if token.len() < orig_len {
+            token.push_str(&"_".repeat(orig_len - token.len()));
+        } else if token.len() > orig_len {
+            token = format!("[{}]", label);
+            if token.len() < orig_len {
+                token.push_str(&"_".repeat(orig_len - token.len()));
+            } else if token.len() > orig_len {
+                token = "X".repeat(orig_len);
             }
         }
+        token
     }
 }
